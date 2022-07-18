@@ -18,6 +18,9 @@ type Parser struct {
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: make([]string, 0)}
+	p.advanceToken()
+	p.advanceToken()
+
 	return p
 }
 
@@ -25,7 +28,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
-	for tok := p.l.NextToken(); tok.Type != token.EOF; tok = p.l.NextToken() {
+	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -47,7 +50,9 @@ func (p *Parser) Errors() []string {
 func (p *Parser) advanceToken() {
 	p.prevToken = p.curToken
 	p.curToken = p.nextToken
-	p.nextToken = p.l.NextToken()
+	if !p.nextTokenIs(token.EOF) {
+		p.nextToken = p.l.NextToken()
+	}
 }
 
 func (p *Parser) curTokenIs(tokenType string) bool {

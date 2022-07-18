@@ -20,7 +20,7 @@ var (
 	out = os.Stdout
 )
 
-func Start() {
+func Start(debug bool) {
 
 	eval := evaluator.New()
 
@@ -35,7 +35,7 @@ func Start() {
 		}
 
 		line := scanner.Text()
-		l := lexer.New(line)
+		l := lexer.New(line, debug)
 		p := parser.New(l)
 		program := p.ParseProgram()
 

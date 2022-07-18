@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/menxqk/my-interpreter/repl"
@@ -8,5 +9,9 @@ import (
 
 func main() {
 	fmt.Println("My 'C-like' interpreter")
-	repl.Start()
+
+	debug := flag.Bool("debug", false, "Show debug information")
+	flag.Parse()
+
+	repl.Start(*debug)
 }
