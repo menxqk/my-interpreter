@@ -18,8 +18,14 @@ type Lexer struct {
 	debug bool
 }
 
-func New(input string, debug bool) *Lexer {
-	l := &Lexer{input: []rune(input), debug: debug}
+func New(input string, debug ...bool) *Lexer {
+	var d bool
+
+	if len(debug) > 0 {
+		d = debug[0]
+	}
+
+	l := &Lexer{input: []rune(input), debug: d}
 	l.advancePos()
 
 	return l
@@ -188,10 +194,11 @@ func (l *Lexer) readString() (string, string) {
 
 	pos := l.curPos
 	closed := false
-	for isLetter(l.nextChar()) || l.nextChar() == '"' {
+	for l.char != 0 {
 		l.advancePos()
 		if l.char == '"' {
 			closed = true
+			break
 		}
 	}
 	s = string(l.input[pos:l.nextPos])
@@ -209,23 +216,23 @@ func (l *Lexer) readString() (string, string) {
 
 func (l *Lexer) readNumber() (string, string) {
 	var nType string
-	var literal string
+	var n string
 
 	pos := l.curPos
 	for isDigit(l.nextChar()) || l.nextChar() == '.' {
 		l.advancePos()
 	}
-	literal = string(l.input[pos:l.nextPos])
+	n = string(l.input[pos:l.nextPos])
 
-	if strings.Count(literal, ".") == 0 {
+	if strings.Count(n, ".") == 0 {
 		nType = token.INT_VALUE
-	} else if strings.Count(literal, ".") == 1 {
+	} else if strings.Count(n, ".") == 1 {
 		nType = token.FLOAT_VALUE
 	} else {
 		nType = token.ILLEGAL
 	}
 
-	return nType, literal
+	return n, nType
 }
 
 func (l *Lexer) readName() string {
