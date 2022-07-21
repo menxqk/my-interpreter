@@ -36,7 +36,7 @@ func Start(debug bool) {
 
 		line := scanner.Text()
 		l := lexer.New(line, debug)
-		p := parser.New(l)
+		p := parser.New(l, debug)
 		program := p.ParseProgram()
 
 		if p.HasErrors() {
@@ -47,7 +47,6 @@ func Start(debug bool) {
 		}
 
 	}
-
 }
 
 func printErrors(errors []string) {

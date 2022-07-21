@@ -123,7 +123,7 @@ func (l *Lexer) NextToken() token.Token {
 
 	// DEBUG INFO
 	if l.debug {
-		fmt.Printf("%+v\n", tok)
+		fmt.Printf("token: %+v\n", tok)
 	}
 
 	return tok

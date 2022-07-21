@@ -41,6 +41,11 @@ const (
 	RBRACKET  = "]"
 	LBRACE    = "{"
 	RBRACE    = "}"
+
+	// Keywords
+	IF     = "IF"
+	ELSE   = "ELSE"
+	RETURN = "RETURN"
 )
 
 type Token struct {
@@ -48,7 +53,10 @@ type Token struct {
 	Literal string
 }
 
-var dataTypes = map[string]string{
+var keywords = map[string]string{
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
 	"int":    INT_TYPE,
 	"float":  FLOAT_TYPE,
 	"char":   CHAR_TYPE,
@@ -56,7 +64,7 @@ var dataTypes = map[string]string{
 }
 
 func LookupIdentType(ident string) string {
-	if t, ok := dataTypes[ident]; ok {
+	if t, ok := keywords[ident]; ok {
 		return t
 	}
 	return IDENT
