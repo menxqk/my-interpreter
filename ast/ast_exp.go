@@ -1,25 +1,29 @@
 package ast
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 // IDENTIFIER
 type Identifier struct {
-	Name     string
-	Type     string
-	DataType string
+	Name        string
+	Type        string
+	TypeLiteral string
 }
 
 func (i *Identifier) expressionNode() {}
 func (i *Identifier) Literal() string { return i.Name }
 func (i *Identifier) String() string {
-	if i.Type != "" {
-		return fmt.Sprintf("%s %s", i.Type, i.Name)
+	if i.TypeLiteral != "" {
+		return fmt.Sprintf("%s %s", i.TypeLiteral, i.Name)
 	}
 	return i.Name
 }
 func (i *Identifier) DebugString() string {
-	if i.Type != "" {
-		return fmt.Sprintf("%s %s [%T]", i.Type, i.Name, i)
+	if i.TypeLiteral != "" {
+		return fmt.Sprintf("%s %s [%T]", i.TypeLiteral, i.Name, i)
 	}
 	return fmt.Sprintf("%s [%T]", i.Name, i)
 }
@@ -85,4 +89,112 @@ func (ie *InfixExpression) DebugString() string {
 		return fmt.Sprintf("(%s %s %s) [%T]", ie.Left.DebugString(), ie.Operator, ie.Right.DebugString(), ie)
 	}
 	return ""
+}
+
+// IF EXPRESSION
+type IfExpression struct {
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode() {}
+func (ie *IfExpression) Literal() string { return "if" }
+func (ie *IfExpression) String() string {
+	var out bytes.Buffer
+	if ie.Condition != nil {
+		out.WriteString(fmt.Sprintf("if %s ", ie.Condition.String()))
+	}
+	if ie.Consequence != nil {
+		out.WriteString(fmt.Sprintf("%s ", ie.Consequence.String()))
+	}
+	if ie.Alternative != nil {
+		out.WriteString(fmt.Sprintf("else %s", ie.Alternative.String()))
+	}
+	return out.String()
+}
+func (ie *IfExpression) DebugString() string {
+	var out bytes.Buffer
+	if ie.Condition != nil {
+		out.WriteString(fmt.Sprintf("if %s ", ie.Condition.DebugString()))
+	}
+	if ie.Consequence != nil {
+		out.WriteString(fmt.Sprintf("%s", ie.Consequence.DebugString()))
+	}
+	if ie.Alternative != nil {
+		out.WriteString(fmt.Sprintf("else %s", ie.Alternative.DebugString()))
+	}
+	out.WriteString(fmt.Sprintf(" [%T]", ie))
+	return out.String()
+}
+
+// FUNCTION EXPRESSION
+type FunctionExpression struct {
+	Identifier Identifier
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fe *FunctionExpression) expressionNode() {}
+func (fe *FunctionExpression) Literal() string { return "func" }
+func (fe *FunctionExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("%s %s(", fe.Identifier.TypeLiteral, fe.Identifier.Name))
+	params := []string{}
+	for _, param := range fe.Parameters {
+		params = append(params, fmt.Sprintf("%s %s", param.TypeLiteral, param.Name))
+	}
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	if fe.Body != nil {
+		out.WriteString(fmt.Sprintf(" %s", fe.Body.String()))
+	}
+	return out.String()
+}
+func (fe *FunctionExpression) DebugString() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("%s %s [%T](", fe.Identifier.TypeLiteral, fe.Identifier.Name, fe.Identifier))
+	params := []string{}
+	for _, param := range fe.Parameters {
+		params = append(params, fmt.Sprintf("%s %s [%T]", param.TypeLiteral, param.Name, param))
+	}
+	out.WriteString(fmt.Sprintf("%s", strings.Join(params, ", ")))
+	out.WriteString(")")
+	if fe.Body != nil {
+		out.WriteString(fmt.Sprintf(" %s", fe.Body.DebugString()))
+	}
+	out.WriteString(fmt.Sprintf(" [%T]", fe))
+	return out.String()
+}
+
+// CALL EXPRESSION
+type CallExpression struct {
+	Identifier Identifier
+	Arguments  []*Identifier
+}
+
+func (ce *CallExpression) expressionNode() {}
+func (ce *CallExpression) Literal() string { return "call" }
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("%s(", ce.Identifier.String()))
+	args := []string{}
+	for _, arg := range ce.Arguments {
+		args = append(args, arg.String())
+	}
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+	return out.String()
+}
+func (ce *CallExpression) DebugString() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("%s(", ce.Identifier.DebugString()))
+	args := []string{}
+	for _, arg := range ce.Arguments {
+		args = append(args, arg.DebugString())
+	}
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+	out.WriteString(fmt.Sprintf(" [%T]", ce))
+	return out.String()
 }

@@ -92,3 +92,61 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	return exp
 }
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	exp := &ast.IfExpression{}
+
+	if !p.nextTokenIs(token.LPAREN) {
+		msg := fmt.Sprintf("expected '(' got=%s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // '('
+	p.advanceToken() // expression
+
+	exp.Condition = p.parseExpression(LOWEST)
+	if exp.Condition == nil {
+		return nil
+	}
+
+	if !p.nextTokenIs(token.RPAREN) {
+		msg := fmt.Sprintf("expected ')' got=%s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ')'
+
+	if !p.nextTokenIs(token.LBRACE) {
+		msg := fmt.Sprintf("expected '{' got=%s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // '{'
+
+	exp.Consequence = p.parseBlockStatement()
+	if exp.Consequence == nil {
+		return nil
+	}
+
+	if p.nextTokenIs(token.ELSE) {
+		p.advanceToken() // else
+		if !p.nextTokenIs(token.LBRACE) {
+			msg := fmt.Sprintf("expected '{' got=%s", p.nextToken.Literal)
+			p.appendError(msg)
+			return nil
+		}
+		p.advanceToken() // '{'
+
+		exp.Alternative = p.parseBlockStatement()
+		if exp.Alternative == nil {
+			return nil
+		}
+	}
+
+	return exp
+}
+
+func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
+	// TODO
+	return nil
+}
