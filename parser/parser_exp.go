@@ -97,7 +97,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	exp := &ast.IfExpression{}
 
 	if !p.nextTokenIs(token.LPAREN) {
-		msg := fmt.Sprintf("expected '(' got=%s", p.nextToken.Literal)
+		msg := fmt.Sprintf("expected '(' got= %s", p.nextToken.Literal)
 		p.appendError(msg)
 		return nil
 	}
@@ -110,14 +110,14 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	if !p.nextTokenIs(token.RPAREN) {
-		msg := fmt.Sprintf("expected ')' got=%s", p.nextToken.Literal)
+		msg := fmt.Sprintf("expected ')' got= %s", p.nextToken.Literal)
 		p.appendError(msg)
 		return nil
 	}
 	p.advanceToken() // ')'
 
 	if !p.nextTokenIs(token.LBRACE) {
-		msg := fmt.Sprintf("expected '{' got=%s", p.nextToken.Literal)
+		msg := fmt.Sprintf("expected '{' got= %s", p.nextToken.Literal)
 		p.appendError(msg)
 		return nil
 	}
@@ -131,7 +131,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	if p.nextTokenIs(token.ELSE) {
 		p.advanceToken() // else
 		if !p.nextTokenIs(token.LBRACE) {
-			msg := fmt.Sprintf("expected '{' got=%s", p.nextToken.Literal)
+			msg := fmt.Sprintf("expected '{' got= %s", p.nextToken.Literal)
 			p.appendError(msg)
 			return nil
 		}
@@ -147,6 +147,28 @@ func (p *Parser) parseIfExpression() ast.Expression {
 }
 
 func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
-	// TODO
-	return nil
+	exp := &ast.CallExpression{}
+
+	exp.Identifier = ast.Identifier{
+		Name: left.Literal(),
+	}
+
+	p.advanceToken() // cal arguments
+	args := []ast.Expression{}
+	for !p.curTokenIs(token.RPAREN) && !p.curTokenIs(token.EOF) {
+		exp := p.parseExpression(LOWEST)
+		if exp == nil {
+			return nil
+		}
+		args = append(args, exp)
+
+		if p.nextTokenIs(token.COMMA) {
+			p.advanceToken() // ','
+		}
+
+		p.advanceToken()
+	}
+	exp.Arguments = args
+
+	return exp
 }

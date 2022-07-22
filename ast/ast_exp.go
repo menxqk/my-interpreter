@@ -170,7 +170,7 @@ func (fe *FunctionExpression) DebugString() string {
 // CALL EXPRESSION
 type CallExpression struct {
 	Identifier Identifier
-	Arguments  []*Identifier
+	Arguments  []Expression
 }
 
 func (ce *CallExpression) expressionNode() {}

@@ -63,9 +63,23 @@ var keywords = map[string]string{
 	"string": STRING_TYPE,
 }
 
+var dataTypes = map[string]string{
+	"int":    INT_TYPE,
+	"float":  FLOAT_TYPE,
+	"char":   CHAR_TYPE,
+	"string": STRING_TYPE,
+}
+
 func LookupIdentType(ident string) string {
 	if t, ok := keywords[ident]; ok {
 		return t
 	}
 	return IDENT
+}
+
+func IsDataType(tokenType string) bool {
+	if _, ok := dataTypes[tokenType]; ok {
+		return true
+	}
+	return false
 }

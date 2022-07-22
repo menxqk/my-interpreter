@@ -10,7 +10,6 @@ import (
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.INT_TYPE, token.FLOAT_TYPE, token.CHAR_TYPE, token.STRING_TYPE:
-		// declaration statement
 		return p.parseDeclarationStatement()
 	case token.IDENT:
 		if p.nextTokenIs(token.ASSIGN) {
@@ -44,17 +43,106 @@ func (p *Parser) parseDeclarationStatement() ast.Statement {
 }
 
 func (p *Parser) parseVariableDeclarationStatement() ast.Statement {
-	// TODO
-	return nil
+	stmt := &ast.VariableDeclarationStatement{}
+	stmt.Identifier = ast.Identifier{
+		Name:        p.curToken.Literal,
+		Type:        p.prevToken.Type,
+		TypeLiteral: p.prevToken.Literal,
+	}
+
+	p.advanceToken() // '='
+	p.advanceToken() // expression
+
+	stmt.Expression = p.parseExpression(LOWEST)
+	if stmt.Expression == nil {
+		return nil
+	}
+
+	if !p.nextTokenIs(token.SEMICOLON) {
+		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ';'
+
+	return stmt
 }
 
 func (p *Parser) parseFunctionDeclarationStatement() ast.Statement {
-	// TODO
-	return nil
+	stmt := &ast.FunctionDeclarationStatement{}
+
+	funcExp := &ast.FunctionExpression{
+		Identifier: ast.Identifier{
+			Name:        p.curToken.Literal,
+			Type:        p.prevToken.Type,
+			TypeLiteral: p.prevToken.Literal,
+		},
+	}
+
+	p.advanceToken() // '('
+	p.advanceToken() // params
+
+	params := []*ast.Identifier{}
+	for !p.curTokenIs(token.RPAREN) && !p.curTokenIs(token.EOF) {
+		if !token.IsDataType(p.curToken.Literal) {
+			msg := fmt.Sprintf("expected data type, got= %s[%s]", p.curToken.Literal, p.curToken.Type)
+			p.appendError(msg)
+			return nil
+		}
+		param := &ast.Identifier{
+			Type:        p.curToken.Type,
+			TypeLiteral: p.curToken.Literal,
+		}
+
+		if !p.nextTokenIs(token.IDENT) {
+			msg := fmt.Sprintf("expected IDENT after: %s, got= %s", p.curToken.Literal, p.nextToken.Type)
+			p.appendError(msg)
+			return nil
+		}
+		p.advanceToken() // IDENT
+		param.Name = p.curToken.Literal
+
+		params = append(params, param)
+
+		if p.nextTokenIs(token.COMMA) {
+			p.advanceToken() // ','
+		}
+
+		p.advanceToken()
+	}
+	funcExp.Parameters = params
+
+	p.advanceToken() // '{'
+	if !p.curTokenIs(token.LBRACE) {
+		msg := fmt.Sprintf("expected '{' in function '%s' declaration, got=%s", funcExp.Identifier.Name, p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	funcExp.Body = p.parseBlockStatement()
+	if funcExp.Body == nil {
+		return nil
+	}
+
+	stmt.Function = funcExp
+
+	return stmt
 }
 
 func (p *Parser) parseAssignmentStatement() ast.Statement {
-	// TODO
+	stmt := &ast.AssignmentStatement{}
+	stmt.Identifier = ast.Identifier{
+		Name: p.curToken.Literal,
+	}
+
+	p.advanceToken() // '='
+	p.advanceToken() // expression
+
+	stmt.Expression = p.parseExpression(LOWEST)
+	if stmt.Expression == nil {
+		return nil
+	}
+
 	return nil
 }
 
