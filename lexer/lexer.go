@@ -148,7 +148,11 @@ func (l *Lexer) nextChar() rune {
 }
 
 func (l *Lexer) nextTokenIs(ch rune) bool {
-	return l.input[l.nextPos] == ch
+	if l.nextPos >= len(l.input) {
+		return false
+	} else {
+		return l.input[l.nextPos] == ch
+	}
 }
 
 func (l *Lexer) skipWhiteSpace() {

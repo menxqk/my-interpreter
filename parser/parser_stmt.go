@@ -17,6 +17,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		} else {
 			return p.parseExpressionStatement()
 		}
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -143,7 +145,14 @@ func (p *Parser) parseAssignmentStatement() ast.Statement {
 		return nil
 	}
 
-	return nil
+	if !p.nextTokenIs(token.SEMICOLON) {
+		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ';'
+
+	return stmt
 }
 
 func (p *Parser) parseExpressionStatement() ast.Statement {
@@ -157,6 +166,29 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	_, isIfExp := stmt.Expression.(*ast.IfExpression)
 	_, isFuncExp := stmt.Expression.(*ast.FunctionExpression)
 	if !p.nextTokenIs(token.SEMICOLON) && !isIfExp && !isFuncExp {
+		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	if !isIfExp && !isFuncExp {
+		p.advanceToken() // ';'
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseReturnStatement() ast.Statement {
+	stmt := &ast.ReturnStatement{}
+
+	p.advanceToken() // expression
+
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+	if stmt.ReturnValue == nil {
+		return nil
+	}
+
+	if !p.nextTokenIs(token.SEMICOLON) {
 		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
 		p.appendError(msg)
 		return nil

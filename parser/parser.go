@@ -51,8 +51,14 @@ type Parser struct {
 	infixParseFns  map[string]InfixParseFn
 }
 
-func New(l *lexer.Lexer, debug bool) *Parser {
-	p := &Parser{l: l, errors: make([]string, 0), debug: debug}
+func New(l *lexer.Lexer, debug ...bool) *Parser {
+	var d bool
+
+	if len(debug) > 0 {
+		d = debug[0]
+	}
+
+	p := &Parser{l: l, errors: make([]string, 0), debug: d}
 	p.advanceToken()
 	p.advanceToken()
 

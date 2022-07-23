@@ -114,3 +114,23 @@ func (as *AssignmentStatement) DebugString() string {
 	}
 	return ""
 }
+
+// RETURN STATEMENT
+type ReturnStatement struct {
+	ReturnValue Expression
+}
+
+func (re *ReturnStatement) statementNode()  {}
+func (re *ReturnStatement) Literal() string { return "return" }
+func (re *ReturnStatement) String() string {
+	if re.ReturnValue != nil {
+		return fmt.Sprintf("return %s", re.ReturnValue.String())
+	}
+	return ""
+}
+func (re *ReturnStatement) DebugString() string {
+	if re.ReturnValue != nil {
+		return fmt.Sprintf("return %s [%T]", re.ReturnValue.DebugString(), re)
+	}
+	return ""
+}
