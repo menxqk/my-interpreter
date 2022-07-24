@@ -14,14 +14,14 @@ func (es *ExpressionStatement) statementNode()  {}
 func (es *ExpressionStatement) Literal() string { return "EXP_STMT" }
 func (es *ExpressionStatement) String() string {
 	if es.Expression != nil {
-		return fmt.Sprintf("%s", es.Expression.String())
+		return fmt.Sprintf("%s;", es.Expression.String())
 	}
 	return ""
 }
 
 func (es *ExpressionStatement) DebugString() string {
 	if es.Expression != nil {
-		return fmt.Sprintf("%s [%T]", es.Expression.DebugString(), es)
+		return fmt.Sprintf("%s [%T];", es.Expression.DebugString(), es)
 	}
 	return ""
 }
@@ -37,7 +37,7 @@ func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString("{")
 	for _, stmt := range bs.Statements {
-		out.WriteString(fmt.Sprintf(" %s", stmt.String()))
+		out.WriteString(fmt.Sprintf(" %s;", stmt.String()))
 	}
 	out.WriteString(" }")
 	return out.String()
@@ -49,7 +49,7 @@ func (bs *BlockStatement) DebugString() string {
 		out.WriteString(fmt.Sprintf(" %s", stmt.DebugString()))
 	}
 	out.WriteString(" }")
-	out.WriteString(fmt.Sprintf(" [%T]", bs))
+	out.WriteString(fmt.Sprintf(" [%T];", bs))
 	return out.String()
 }
 
@@ -63,13 +63,13 @@ func (vds *VariableDeclarationStatement) statementNode()  {}
 func (vds *VariableDeclarationStatement) Literal() string { return "VD_STMT" }
 func (vds *VariableDeclarationStatement) String() string {
 	if vds.Expression != nil {
-		return fmt.Sprintf("%s = %s", vds.Identifier.String(), vds.Expression.String())
+		return fmt.Sprintf("%s = %s;", vds.Identifier.String(), vds.Expression.String())
 	}
 	return ""
 }
 func (vds *VariableDeclarationStatement) DebugString() string {
 	if vds.Expression != nil {
-		return fmt.Sprintf("%s = %s [%T]", vds.Identifier.DebugString(), vds.Expression.DebugString(), vds)
+		return fmt.Sprintf("%s = %s [%T];", vds.Identifier.DebugString(), vds.Expression.DebugString(), vds)
 	}
 	return ""
 }
@@ -104,13 +104,13 @@ func (as *AssignmentStatement) statementNode()  {}
 func (as *AssignmentStatement) Literal() string { return "A_STMT" }
 func (as *AssignmentStatement) String() string {
 	if as.Expression != nil {
-		return fmt.Sprintf("%s = %s", as.Identifier.String(), as.Expression.String())
+		return fmt.Sprintf("%s = %s;", as.Identifier.String(), as.Expression.String())
 	}
 	return ""
 }
 func (as *AssignmentStatement) DebugString() string {
 	if as.Expression != nil {
-		return fmt.Sprintf("%s = %s [%T]", as.Identifier.DebugString(), as.Expression.DebugString(), as)
+		return fmt.Sprintf("%s = %s [%T];", as.Identifier.DebugString(), as.Expression.DebugString(), as)
 	}
 	return ""
 }
@@ -124,13 +124,13 @@ func (re *ReturnStatement) statementNode()  {}
 func (re *ReturnStatement) Literal() string { return "return" }
 func (re *ReturnStatement) String() string {
 	if re.ReturnValue != nil {
-		return fmt.Sprintf("return %s", re.ReturnValue.String())
+		return fmt.Sprintf("return %s;", re.ReturnValue.String())
 	}
 	return ""
 }
 func (re *ReturnStatement) DebugString() string {
 	if re.ReturnValue != nil {
-		return fmt.Sprintf("return %s [%T]", re.ReturnValue.DebugString(), re)
+		return fmt.Sprintf("return %s [%T];", re.ReturnValue.DebugString(), re)
 	}
 	return ""
 }

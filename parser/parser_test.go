@@ -17,10 +17,50 @@ func TestParseProgram(t *testing.T) {
 		Line string
 		Stmt ast.Statement
 	}{
-		{"int c = 50;", &ast.VariableDeclarationStatement{}},
-		{"float add(float a, float b) { a + b; }", &ast.FunctionDeclarationStatement{}},
-		{"x = 20;", &ast.AssignmentStatement{}},
-		{"1 + 1;", &ast.ExpressionStatement{}},
+		{"int c = 50;", &ast.VariableDeclarationStatement{
+			Identifier: ast.Identifier{Name: "c", Type: token.INT_TYPE, TypeLiteral: "int"},
+			Expression: &ast.IntegerLiteral{Value: 50}},
+		},
+		{"string concat(string s1, string s2) { return s1 + s2; }", &ast.FunctionDeclarationStatement{
+			Function: &ast.FunctionExpression{
+				Identifier: ast.Identifier{Name: "concat", Type: token.STRING_TYPE, TypeLiteral: "string"},
+				Parameters: []*ast.Identifier{
+					{Name: "s1", Type: token.STRING_TYPE, TypeLiteral: "string"},
+					{Name: "s2", Type: token.STRING_TYPE, TypeLiteral: "string"},
+				},
+				Body: &ast.BlockStatement{
+					Statements: []ast.Statement{
+						&ast.ReturnStatement{
+							ReturnValue: &ast.InfixExpression{
+								Left:     &ast.Identifier{Name: "s1"},
+								Operator: "+",
+								Right:    &ast.Identifier{Name: "s2"},
+							},
+						},
+					},
+				},
+			}},
+		},
+		{"x = 20;", &ast.AssignmentStatement{
+			Identifier: ast.Identifier{Name: "x"},
+			Expression: &ast.IntegerLiteral{Value: 20}},
+		},
+		{"1 + 1;", &ast.ExpressionStatement{
+			Expression: &ast.InfixExpression{
+				Left:     &ast.IntegerLiteral{Value: 1},
+				Operator: "+",
+				Right:    &ast.IntegerLiteral{Value: 1},
+			}},
+		},
+		{"concat(\"string1\",\"string2\");", &ast.ExpressionStatement{
+			Expression: &ast.CallExpression{
+				Identifier: ast.Identifier{Name: "concat"},
+				Arguments: []ast.Expression{
+					&ast.StringLiteral{Value: "string1"},
+					&ast.StringLiteral{Value: "string2"},
+				},
+			}},
+		},
 	}
 
 	lines := []string{}
@@ -44,19 +84,20 @@ func TestParseProgram(t *testing.T) {
 		t.Fatalf("expected %d statements, got=%d", len(tests), len(program.Statements))
 	}
 
-	for i, input := range tests {
+	for i, tt := range tests {
 		stmt := program.Statements[i]
-		if reflect.TypeOf(stmt) != reflect.TypeOf(input.Stmt) {
-			t.Fatalf("expected type %s, got=%s", reflect.TypeOf(input.Stmt), reflect.TypeOf(stmt))
-		}
+		checkStatements(t, stmt, tt.Stmt)
 	}
 
 	tests = []struct {
 		Line string
 		Stmt ast.Statement
 	}{
-		{"x = 20", nil},
-		{"string s =", nil},
+		{"int c = +", nil},
+		{"string concat(-", nil},
+		{"x = (+", nil},
+		{"string s = /", nil},
+		{"concat(*", nil},
 	}
 
 	lines = []string{}
@@ -77,7 +118,7 @@ func TestParseProgram(t *testing.T) {
 	}
 }
 
-func TestParseDeclarationStatements(t *testing.T) {
+func TestParseStatement(t *testing.T) {
 	tests := []struct {
 		Line string
 		Stmt ast.Statement
@@ -121,50 +162,6 @@ func TestParseDeclarationStatements(t *testing.T) {
 				},
 			}},
 		},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 0 {
-			t.Errorf("expected zero errors, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 1 {
-			t.Errorf("expected 1 statement, got %d", len(program.Statements))
-		}
-
-		checkStatements(t, program.Statements[0], tt.Stmt)
-	}
-
-	tests = []struct {
-		Line string
-		Stmt ast.Statement
-	}{
-		{"string s = \"A string\"", nil},
-		{"string help() { return \"help\"", nil},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 1 {
-			t.Errorf("expected 1 error, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 0 {
-			t.Errorf("expected 0 statements, got %d", len(program.Statements))
-		}
-	}
-}
-
-func TestAssignmentStatement(t *testing.T) {
-	tests := []struct {
-		Line string
-		Stmt ast.Statement
-	}{
 		{"x = 20;", &ast.AssignmentStatement{
 			Identifier: ast.Identifier{Name: "x"},
 			Expression: &ast.IntegerLiteral{Value: 20}},
@@ -189,53 +186,6 @@ func TestAssignmentStatement(t *testing.T) {
 				Right:    &ast.IntegerLiteral{Value: 3},
 			}},
 		},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 0 {
-			t.Errorf("expected zero errors, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 1 {
-			t.Errorf("expected 1 statement, got %d", len(program.Statements))
-		}
-
-		checkStatements(t, program.Statements[0], tt.Stmt)
-	}
-
-	tests = []struct {
-		Line string
-		Stmt ast.Statement
-	}{
-		{"x = 20", nil},
-		{"y = 35.60", nil},
-		{"s = \"string\"", nil},
-		{"c = 'c'", nil},
-		{"d = 1 + 3", nil},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 1 {
-			t.Errorf("expected 1 error, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 0 {
-			t.Errorf("expected 0 statements, got %d", len(program.Statements))
-		}
-	}
-}
-
-func TestParseExpressionStatement(t *testing.T) {
-	tests := []struct {
-		Line string
-		Stmt ast.Statement
-	}{
 		{"abc;", &ast.ExpressionStatement{
 			Expression: &ast.Identifier{Name: "abc"}},
 		},
@@ -297,59 +247,6 @@ func TestParseExpressionStatement(t *testing.T) {
 		{"3.560;", &ast.ExpressionStatement{Expression: &ast.FloatLiteral{Value: 3.560}}},
 		{"'c';", &ast.ExpressionStatement{Expression: &ast.CharLiteral{Value: 'c'}}},
 		{"\"A string\";", &ast.ExpressionStatement{Expression: &ast.StringLiteral{Value: "A string"}}},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 0 {
-			t.Errorf("expected zero errors, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 1 {
-			t.Errorf("expected 1 statement, got %d", len(program.Statements))
-		}
-
-		checkStatements(t, program.Statements[0], tt.Stmt)
-	}
-
-	tests = []struct {
-		Line string
-		Stmt ast.Statement
-	}{
-		{"abc", nil},
-		{"!1", nil},
-		{"(2)", nil},
-		{"3 + 3", nil},
-
-		{"if", nil},
-		{"add(a, 1 + 1)", nil},
-		{"1", nil},
-		{"3.560", nil},
-		{"'c'", nil},
-		{"\"A string\"", nil},
-	}
-	for _, tt := range tests {
-		l := lexer.New(tt.Line)
-		p := New(l)
-		program := p.ParseProgram()
-
-		if len(p.errors) != 1 {
-			t.Errorf("expected 1 error, got %d", len(p.errors))
-		}
-
-		if len(program.Statements) != 0 {
-			t.Errorf("expected 0 statements, got %d", len(program.Statements))
-		}
-	}
-}
-
-func TestParseReturnStatement(t *testing.T) {
-	tests := []struct {
-		Line string
-		Stmt ast.Statement
-	}{
 		{"return a;", &ast.ReturnStatement{
 			ReturnValue: &ast.Identifier{Name: "a"}},
 		},
@@ -360,104 +257,84 @@ func TestParseReturnStatement(t *testing.T) {
 				Right:    &ast.IntegerLiteral{Value: 1},
 			}},
 		},
+		{"{ int x = 1; float y = 3.2; c = 'c'; string s = \"a string\"; return x / y; }", &ast.BlockStatement{
+			Statements: []ast.Statement{
+				&ast.VariableDeclarationStatement{
+					Identifier: ast.Identifier{Name: "x", Type: token.INT_TYPE, TypeLiteral: "int"},
+					Expression: &ast.IntegerLiteral{Value: 1}},
+				&ast.VariableDeclarationStatement{
+					Identifier: ast.Identifier{Name: "y", Type: token.FLOAT_TYPE, TypeLiteral: "float"},
+					Expression: &ast.FloatLiteral{Value: 3.2}},
+				&ast.AssignmentStatement{
+					Identifier: ast.Identifier{Name: "c"},
+					Expression: &ast.CharLiteral{Value: 'c'}},
+				&ast.VariableDeclarationStatement{
+					Identifier: ast.Identifier{Name: "s", Type: token.STRING_TYPE, TypeLiteral: "string"},
+					Expression: &ast.StringLiteral{Value: "a string"}},
+				&ast.ReturnStatement{
+					ReturnValue: &ast.InfixExpression{
+						Left:     &ast.Identifier{Name: "x"},
+						Operator: "/",
+						Right:    &ast.Identifier{Name: "y"},
+					}},
+			}},
+		},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.Line)
 		p := New(l)
-		program := p.ParseProgram()
+		stmt := p.parseStatement()
 
 		if len(p.errors) != 0 {
 			t.Errorf("expected zero errors, got %d", len(p.errors))
+			fmt.Println(p.errors)
+			fmt.Println(stmt)
 		}
 
-		if len(program.Statements) != 1 {
-			t.Errorf("expected 1 statement, got %d", len(program.Statements))
-		}
-
-		checkStatements(t, program.Statements[0], tt.Stmt)
+		checkStatements(t, stmt, tt.Stmt)
 	}
 
 	tests = []struct {
 		Line string
 		Stmt ast.Statement
 	}{
+		{"string s = \"A string\"", nil},
+		{"string help() { return \"help\"", nil},
+		{"int add(a)", nil},
+		{"x = 20", nil},
+		{"y = 35.60", nil},
+		{"s = \"string\"", nil},
+		{"c = 'c'", nil},
+		{"d = 1 + 3", nil},
+		{"abc", nil},
+		{"!1", nil},
+		{"(2)", nil},
+		{"3 + 3", nil},
+		{"if (x < )", nil},
+		{"add(a, 1 + 1)", nil},
+		{"1", nil},
+		{"3.560", nil},
+		{"'c'", nil},
+		{"\"A string\"", nil},
 		{"return a", nil},
 		{"return a + 1", nil},
+		{"{ int x = 1\nfloat y = 3.2\nc = 'c'\nstring s = \"a string\"\nreturn x / y }", nil},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.Line)
 		p := New(l)
-		program := p.ParseProgram()
+		// program := p.ParseProgram()
+		stmt := p.parseStatement()
 
 		if len(p.errors) != 1 {
 			t.Errorf("expected 1 error, got %d", len(p.errors))
 		}
 
-		if len(program.Statements) != 0 {
-			t.Errorf("expected 0 statements, got %d", len(program.Statements))
+		if stmt != nil && !reflect.ValueOf(stmt).IsNil() {
+			t.Errorf("expected nil statement, got %T", stmt)
 		}
 	}
 
-}
-
-func TestParseBlockStatement(t *testing.T) {
-	tests := []struct {
-		Line string
-		Stmt ast.Statement
-	}{
-		{"int x = 1;", &ast.VariableDeclarationStatement{
-			Identifier: ast.Identifier{Name: "x", Type: token.INT_TYPE, TypeLiteral: "int"},
-			Expression: &ast.IntegerLiteral{Value: 1}},
-		},
-		{"float y = 3.2;", &ast.VariableDeclarationStatement{
-			Identifier: ast.Identifier{Name: "y", Type: token.FLOAT_TYPE, TypeLiteral: "float"},
-			Expression: &ast.FloatLiteral{Value: 3.2}},
-		},
-		{"c = 'c';", &ast.AssignmentStatement{
-			Identifier: ast.Identifier{Name: "c"},
-			Expression: &ast.CharLiteral{Value: 'c'}},
-		},
-		{"string s = \"a string\";", &ast.VariableDeclarationStatement{
-			Identifier: ast.Identifier{Name: "s", Type: token.STRING_TYPE, TypeLiteral: "string"},
-			Expression: &ast.StringLiteral{Value: "a string"}},
-		},
-		{"return x / y;", &ast.ReturnStatement{
-			ReturnValue: &ast.InfixExpression{
-				Left:     &ast.Identifier{Name: "x"},
-				Operator: "/",
-				Right:    &ast.Identifier{Name: "y"},
-			}},
-		},
-	}
-	lines := []string{}
-	for _, input := range tests {
-		lines = append(lines, input.Line)
-	}
-	l := lexer.New("{\n" + strings.Join(lines, "\n") + "}")
-	p := New(l)
-	block := p.parseBlockStatement()
-	ttBlock := &ast.BlockStatement{}
-	for _, tt := range tests {
-		ttBlock.Statements = append(ttBlock.Statements, tt.Stmt)
-	}
-	checkStatements(t, block, ttBlock)
-
-	tests = []struct {
-		Line string
-		Stmt ast.Statement
-	}{
-		{"int x = ;", nil},
-	}
-	lines = []string{}
-	for _, input := range tests {
-		lines = append(lines, input.Line)
-	}
-	l = lexer.New("{\n" + strings.Join(lines, "\n") + "}")
-	p = New(l)
-	block = p.parseBlockStatement()
-	if block != nil {
-		t.Errorf("expected nil block")
-	}
 }
 
 func TestParseExpression(t *testing.T) {

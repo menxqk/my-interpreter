@@ -17,6 +17,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		} else {
 			return p.parseExpressionStatement()
 		}
+	case token.LBRACE:
+		return p.parseBlockStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
