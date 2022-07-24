@@ -19,3 +19,7 @@ type Expression interface {
 type Program struct {
 	Statements []Statement
 }
+
+func (p *Program) Literal() string     { return "" }
+func (p *Program) String() string      { return "" }
+func (p *Program) DebugString() string { return "" }

@@ -21,7 +21,6 @@ var (
 )
 
 func Start(debug bool) {
-
 	eval := evaluator.New()
 
 	scanner := bufio.NewScanner(in)
@@ -43,9 +42,8 @@ func Start(debug bool) {
 			printErrors(p.Errors())
 		} else {
 			res := eval.Eval(program)
-			out.WriteString(res.Value() + "\n")
+			out.WriteString(res.Inspect() + "\n")
 		}
-
 	}
 }
 

@@ -37,7 +37,7 @@ func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString("{")
 	for _, stmt := range bs.Statements {
-		out.WriteString(fmt.Sprintf(" %s;", stmt.String()))
+		out.WriteString(fmt.Sprintf(" %s", stmt.String()))
 	}
 	out.WriteString(" }")
 	return out.String()
@@ -49,7 +49,7 @@ func (bs *BlockStatement) DebugString() string {
 		out.WriteString(fmt.Sprintf(" %s", stmt.DebugString()))
 	}
 	out.WriteString(" }")
-	out.WriteString(fmt.Sprintf(" [%T];", bs))
+	out.WriteString(fmt.Sprintf(" [%T]", bs))
 	return out.String()
 }
 
