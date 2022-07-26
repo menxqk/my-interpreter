@@ -1,8 +1,16 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/menxqk/my-interpreter/ast"
 	"github.com/menxqk/my-interpreter/object"
+)
+
+var (
+	NULL  = &object.Null{}
+	TRUE  = &object.Boolean{Value: true}
+	FALSE = &object.Boolean{Value: false}
 )
 
 type Evaluator struct {
@@ -58,8 +66,15 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return &object.Char{Value: node.Value}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
-
+	case *ast.BooleanLiteral:
+		if node.Value == true {
+			return TRUE
+		}
+		return FALSE
+	case *ast.NullLiteral:
+		return NULL
 	}
+
 	return &object.Null{}
 }
 
@@ -78,4 +93,15 @@ func (e *Evaluator) evalProgram(program *ast.Program) object.Object {
 	}
 
 	return result
+}
+
+func isError(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.ERROR_OBJ
+	}
+	return false
+}
+
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }

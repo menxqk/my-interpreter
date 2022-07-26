@@ -46,6 +46,9 @@ const (
 	IF     = "IF"
 	ELSE   = "ELSE"
 	RETURN = "RETURN"
+	TRUE   = "TRUE"
+	FALSE  = "FALSE"
+	NULL   = "NULL"
 )
 
 type Token struct {
@@ -57,6 +60,9 @@ var keywords = map[string]string{
 	"if":     IF,
 	"else":   ELSE,
 	"return": RETURN,
+	"true":   TRUE,
+	"null":   NULL,
+	"false":  FALSE,
 	"int":    INT_TYPE,
 	"float":  FLOAT_TYPE,
 	"char":   CHAR_TYPE,

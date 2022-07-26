@@ -58,3 +58,18 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 
 	return lit
 }
+
+func (p *Parser) parseBoolean() ast.Expression {
+	switch p.curToken.Literal {
+	case "true":
+		return &ast.BooleanLiteral{Value: true}
+	case "false":
+		return &ast.BooleanLiteral{Value: false}
+	default:
+		return nil
+	}
+}
+
+func (p *Parser) parseNull() ast.Expression {
+	return &ast.NullLiteral{}
+}

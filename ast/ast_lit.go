@@ -41,3 +41,30 @@ func (sl *StringLiteral) expressionNode()     {}
 func (sl *StringLiteral) Literal() string     { return sl.Value }
 func (sl *StringLiteral) String() string      { return fmt.Sprintf("\"%s\"", sl.Value) }
 func (sl *StringLiteral) DebugString() string { return fmt.Sprintf("\"%s\" [%T]", sl.Value, sl) }
+
+// BOOLEAN LITERAL
+type BooleanLiteral struct {
+	Value bool
+}
+
+func (bl *BooleanLiteral) expressionNode() {}
+func (bl *BooleanLiteral) Literal() string {
+	return fmt.Sprintf("%t", bl.Value)
+}
+func (bl *BooleanLiteral) String() string {
+	return fmt.Sprintf("%t", bl.Value)
+}
+func (bl *BooleanLiteral) DebugString() string {
+	return fmt.Sprintf("%t [%T]", bl.Value, bl)
+}
+
+// NULL LITERAL
+type NullLiteral struct {
+}
+
+func (nl *NullLiteral) expressionNode() {}
+func (nl *NullLiteral) Literal() string { return "null" }
+func (nl *NullLiteral) String() string  { return "null" }
+func (nl *NullLiteral) DebugString() string {
+	return fmt.Sprintf("null [%T]", nl)
+}
