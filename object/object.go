@@ -54,7 +54,7 @@ type Float struct {
 	Value float64
 }
 
-func (f *Float) Type() string    { return STR_OBJ }
+func (f *Float) Type() string    { return FLOAT_OBJ }
 func (f *Float) Inspect() string { return fmt.Sprintf("%.6f", f.Value) }
 
 // CHAR Object

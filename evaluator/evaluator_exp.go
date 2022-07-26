@@ -58,13 +58,46 @@ func (e *Evaluator) evalMinusOperatorExpression(right object.Object) object.Obje
 }
 
 func (e *Evaluator) evalGroupedExpression(exp *ast.GroupedExpression) object.Object {
-	// TODO
-	return &object.Null{}
+	return e.Eval(exp.Expression)
 }
 
 func (e *Evaluator) evalInfixExpression(exp *ast.InfixExpression) object.Object {
-	// TODO
-	return &object.Null{}
+	left := e.Eval(exp.Left)
+	if isError(left) {
+		return left
+	}
+
+	right := e.Eval(exp.Right)
+	if isError(right) {
+		return right
+	}
+
+	operator := exp.Operator
+
+	switch operator {
+	case "+":
+		return e.evalPlusOperator(left, right)
+	case "-":
+		return e.evalMinusOperator(left, right)
+	case "*":
+		return e.evalAsteriskOperator(left, right)
+	case "/":
+		return e.evalSlashOperator(left, right)
+	case "==":
+		return e.evalEqualOperator(left, right)
+	case "!=":
+		return e.evalNotEqualOperator(left, right)
+	case ">":
+		return e.evalGreaterOperator(left, right)
+	case ">=":
+		return e.evalGreaterEqualOperator(left, right)
+	case "<":
+		return e.evalLesserOperator(left, right)
+	case "<=":
+		return e.evalLesserEqualOperator(left, right)
+	default:
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+	}
 }
 
 func (e *Evaluator) evalIfExpression(exp *ast.IfExpression) object.Object {
