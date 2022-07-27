@@ -75,7 +75,7 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return NULL
 	}
 
-	return &object.Null{}
+	return &object.Error{Message: "could not parse program"}
 }
 
 func (e *Evaluator) evalProgram(program *ast.Program) object.Object {

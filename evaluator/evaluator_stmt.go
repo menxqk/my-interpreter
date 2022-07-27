@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"fmt"
-
 	"github.com/menxqk/my-interpreter/ast"
 	"github.com/menxqk/my-interpreter/object"
 )
@@ -37,10 +35,7 @@ func (e *Evaluator) evalVariableDeclarationStatement(stmt *ast.VariableDeclarati
 	obj := e.Eval(stmt.Expression)
 
 	if varType != obj.Type() {
-		msg := fmt.Sprintf("cannot assign %s to %s", obj.Type(), varType)
-		return &object.Error{
-			Message: msg,
-		}
+		return newError("cannot assign %s to %s", obj.Type(), varType)
 	}
 
 	result = e.env.Set(name, obj)
@@ -54,10 +49,7 @@ func (e *Evaluator) evalFunctionDeclarationStatement(stmt *ast.FunctionDeclarati
 	obj := e.Eval(stmt.Function)
 	fn, ok := obj.(*object.Function)
 	if !ok {
-		msg := fmt.Sprintf("could not eval function")
-		return &object.Error{
-			Message: msg,
-		}
+		return newError("could not eval function")
 	}
 
 	result = e.env.Set(fn.Identifier.Name, fn)
@@ -70,19 +62,13 @@ func (e *Evaluator) evalAssignmentStatement(stmt *ast.AssignmentStatement) objec
 
 	obj, ok := e.env.Get(stmt.Identifier.Name)
 	if !ok {
-		msg := fmt.Sprintf("%s was not declared yet", stmt.Identifier.Name)
-		return &object.Error{
-			Message: msg,
-		}
+		return newError("%s was not declared yet", stmt.Identifier.Name)
 	}
 
 	expObj := e.Eval(stmt.Expression)
 
 	if expObj.Type() != obj.Type() {
-		msg := fmt.Sprintf("cannot assign %s to %s", expObj.Type(), obj.Type())
-		return &object.Error{
-			Message: msg,
-		}
+		return newError("cannot assign %s to %s", expObj.Type(), obj.Type())
 	}
 
 	result = e.env.Set(stmt.Identifier.Name, expObj)

@@ -77,7 +77,7 @@ func (e Evaluator) evalMinusOperator(left, right object.Object) object.Object {
 	}
 
 	if result == nil {
-		return newError("wrong operation %s - %s", left.Type(), right.Type())
+		return newError("illegal operation %s - %s", left.Type(), right.Type())
 	}
 
 	return result
@@ -106,7 +106,7 @@ func (e Evaluator) evalAsteriskOperator(left, right object.Object) object.Object
 	}
 
 	if result == nil {
-		return newError("wrong operation %s * %s", left.Type(), right.Type())
+		return newError("illegal operation %s * %s", left.Type(), right.Type())
 	}
 
 	return result
@@ -135,7 +135,7 @@ func (e Evaluator) evalSlashOperator(left, right object.Object) object.Object {
 	}
 
 	if result == nil {
-		return newError("wrong operation %s / %s", left.Type(), right.Type())
+		return newError("illegal operation %s / %s", left.Type(), right.Type())
 	}
 
 	return result

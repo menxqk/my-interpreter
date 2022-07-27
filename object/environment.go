@@ -31,3 +31,7 @@ func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
 }
+
+func (e *Environment) Del(name string) {
+	delete(e.store, name)
+}
