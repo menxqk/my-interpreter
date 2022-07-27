@@ -62,7 +62,7 @@ func (e *Evaluator) evalAssignmentStatement(stmt *ast.AssignmentStatement) objec
 
 	obj, ok := e.env.Get(stmt.Identifier.Name)
 	if !ok {
-		return newError("%s was not declared yet", stmt.Identifier.Name)
+		return newError("%q not declared", stmt.Identifier.Name)
 	}
 
 	expObj := e.Eval(stmt.Expression)

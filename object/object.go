@@ -100,7 +100,7 @@ type Function struct {
 func (f *Function) Type() string { return FN_OBJ }
 func (f *Function) Inspect() string {
 	var out bytes.Buffer
-	out.WriteString(fmt.Sprintf("%s(", f.Identifier.Name))
+	out.WriteString(fmt.Sprintf("%s %s(", f.Identifier.TypeLiteral, f.Identifier.Name))
 	params := []string{}
 	for _, param := range f.Parameters {
 		params = append(params, param.String())
