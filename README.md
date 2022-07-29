@@ -1,4 +1,4 @@
-# MY 'C-like' Interpreter
+# My 'C-like' Interpreter
 
 This project is based on the book [*Writing An Interpreter In Go*](https://interpreterbook.com/) by *Thorsten Ball*.
 
