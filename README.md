@@ -2,7 +2,7 @@
 
 This project is based on the book [*Writing An Interpreter In Go*](https://interpreterbook.com/) by *Thorsten Ball*.
 
-![Writing An Interpreter In Go](waiig.png)
+[![Writing An Interpreter In Go](waiig.png)](https://interpreterbook.com/)
 
 Examples:
 
@@ -10,7 +10,7 @@ Examples:
 >>> int x = 10;
 10
 >>> float y = 3.50;
-3.50000;
+3.50000
 >>> string s = "a string";
 a string
 >>> char c = 'c';
