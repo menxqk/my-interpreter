@@ -65,13 +65,13 @@ func (vds *VariableDeclarationStatement) String() string {
 	if vds.Expression != nil {
 		return fmt.Sprintf("%s = %s;", vds.Identifier.String(), vds.Expression.String())
 	}
-	return ""
+	return fmt.Sprintf("%s;", vds.Identifier.String())
 }
 func (vds *VariableDeclarationStatement) DebugString() string {
 	if vds.Expression != nil {
 		return fmt.Sprintf("%s = %s [%T];", vds.Identifier.DebugString(), vds.Expression.DebugString(), vds)
 	}
-	return ""
+	return fmt.Sprintf("%s [%T];", vds.Identifier.DebugString(), vds)
 }
 
 // FUNCTION DECLARATION STATEMENT
@@ -92,6 +92,28 @@ func (fds *FunctionDeclarationStatement) DebugString() string {
 		return fmt.Sprintf("%s [%T]", fds.Function.DebugString(), fds)
 	}
 	return ""
+}
+
+// ARRAY DECLARATION STATEMENT
+type ArrayDeclarationStatement struct {
+	Identifier Identifier
+	Size       int
+	Expression Expression
+}
+
+func (ads *ArrayDeclarationStatement) statementNode()  {}
+func (ads *ArrayDeclarationStatement) Literal() string { return "AD_STMT" }
+func (ads *ArrayDeclarationStatement) String() string {
+	if ads.Expression != nil {
+		return fmt.Sprintf("%s[%d] = %s;", ads.Identifier.String(), ads.Size, ads.Expression.String())
+	}
+	return fmt.Sprintf("%s[%d];", ads.Identifier.String(), ads.Size)
+}
+func (ads *ArrayDeclarationStatement) DebugString() string {
+	if ads.Expression != nil {
+		return fmt.Sprintf("%s[%d] = %s [%T];", ads.Identifier.DebugString(), ads.Size, ads.Expression.DebugString(), ads)
+	}
+	return fmt.Sprintf("%s[%d] [%T];", ads.Identifier.String(), ads.Size, ads)
 }
 
 // ASSIGNMENT STATEMENT

@@ -26,23 +26,6 @@ func (e *Evaluator) evalBlockStatement(block *ast.BlockStatement) object.Object 
 	return result
 }
 
-func (e *Evaluator) evalVariableDeclarationStatement(stmt *ast.VariableDeclarationStatement) object.Object {
-	var result object.Object
-
-	name := stmt.Identifier.Name
-	varType := stmt.Identifier.Type
-
-	obj := e.Eval(stmt.Expression)
-
-	if varType != obj.Type() {
-		return newError("cannot assign %s to %s", obj.Type(), varType)
-	}
-
-	result = e.env.Set(name, obj)
-
-	return result
-}
-
 func (e *Evaluator) evalFunctionDeclarationStatement(stmt *ast.FunctionDeclarationStatement) object.Object {
 	var result object.Object
 
@@ -53,6 +36,63 @@ func (e *Evaluator) evalFunctionDeclarationStatement(stmt *ast.FunctionDeclarati
 	}
 
 	result = e.env.Set(fn.Identifier.Name, fn)
+
+	return result
+}
+
+func (e *Evaluator) evalArrayDeclarationStatement(stmt *ast.ArrayDeclarationStatement) object.Object {
+	var result object.Object
+
+	name := stmt.Identifier.Name
+	arrType := stmt.Identifier.Type
+	size := stmt.Size
+
+	obj := e.Eval(stmt.Expression)
+	// if expression is null, set zero value Object for the type
+	if obj.Type() == object.NULL_OBJ {
+		obj = object.GetZeroValueObject(object.ARRAY_OBJ)
+	}
+
+	if obj.Type() != object.ARRAY_OBJ {
+		return newError("cannot assign %s to %s", obj.Type(), object.ARRAY_OBJ)
+	}
+
+	arrObj := obj.(*object.Array)
+	arrObj.ArrType = arrType
+	arrObj.Size = size
+
+	for _, elem := range arrObj.Elements {
+		if elem.Type() != arrType {
+			return newError("cannot assign %s to %s array", elem.Type(), arrType)
+		}
+	}
+
+	if len(arrObj.Elements) > arrObj.Size {
+		return newError("%d elements exceed array capacity %d", len(arrObj.Elements), arrObj.Size)
+	}
+
+	result = e.env.Set(name, obj)
+
+	return result
+}
+
+func (e *Evaluator) evalVariableDeclarationStatement(stmt *ast.VariableDeclarationStatement) object.Object {
+	var result object.Object
+
+	name := stmt.Identifier.Name
+	varType := stmt.Identifier.Type
+
+	obj := e.Eval(stmt.Expression)
+	// if expression is null, set zero value Object for the type
+	if obj.Type() == object.NULL_OBJ {
+		obj = object.GetZeroValueObject(varType)
+	}
+
+	if obj.Type() != varType {
+		return newError("cannot assign %s to %s", obj.Type(), varType)
+	}
+
+	result = e.env.Set(name, obj)
 
 	return result
 }
@@ -69,6 +109,28 @@ func (e *Evaluator) evalAssignmentStatement(stmt *ast.AssignmentStatement) objec
 
 	if expObj.Type() != obj.Type() {
 		return newError("cannot assign %s to %s", expObj.Type(), obj.Type())
+	}
+
+	// if obj is array, check assignment array
+	arrObj, isArray := obj.(*object.Array)
+	if isArray {
+		expObjArray := expObj.(*object.Array)
+
+		// check element types of assignment array
+		for _, elem := range expObjArray.Elements {
+			if elem.Type() != arrObj.ArrType {
+				return newError("cannot assign %s to %s array", elem.Type(), arrObj.ArrType)
+			}
+		}
+
+		// check size of assignment array
+		if len(expObjArray.Elements) > arrObj.Size {
+			return newError("%d elements exceed array capacity %d", len(expObjArray.Elements), arrObj.Size)
+		}
+
+		// if checks are ok, set correct type and size for assignment array
+		expObjArray.ArrType = arrObj.ArrType
+		expObjArray.Size = arrObj.Size
 	}
 
 	result = e.env.Set(stmt.Identifier.Name, expObj)

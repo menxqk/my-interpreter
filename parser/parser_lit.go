@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/menxqk/my-interpreter/ast"
+	"github.com/menxqk/my-interpreter/token"
 )
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
@@ -72,4 +73,27 @@ func (p *Parser) parseBoolean() ast.Expression {
 
 func (p *Parser) parseNull() ast.Expression {
 	return &ast.NullLiteral{}
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	lit := &ast.ArrayLiteral{}
+
+	p.advanceToken() // expressions
+
+	elems := []ast.Expression{}
+	for !p.curTokenIs(token.EOF) && !p.curTokenIs(token.RBRACE) {
+		exp := p.parseExpression(LOWEST)
+		if exp == nil {
+			return nil
+		}
+		elems = append(elems, exp)
+		if p.nextTokenIs(token.COMMA) {
+			p.advanceToken()
+		}
+		p.advanceToken()
+	}
+
+	lit.Elements = elems
+
+	return lit
 }

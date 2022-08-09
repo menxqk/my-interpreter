@@ -104,7 +104,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = s
 		tok.Type = sType
 	case 0:
-		tok = newToken(token.EOF, "")
+		tok = newToken(token.EOF, "EOF")
 	default:
 		if isDigit(l.char) {
 			n, nType := l.readNumber()

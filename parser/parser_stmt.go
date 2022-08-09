@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/menxqk/my-interpreter/ast"
 	"github.com/menxqk/my-interpreter/token"
@@ -17,8 +18,6 @@ func (p *Parser) parseStatement() ast.Statement {
 		} else {
 			return p.parseExpressionStatement()
 		}
-	case token.LBRACE:
-		return p.parseBlockStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
@@ -35,41 +34,13 @@ func (p *Parser) parseDeclarationStatement() ast.Statement {
 		return nil
 	}
 
-	if p.nextTokenIs(token.ASSIGN) {
-		return p.parseVariableDeclarationStatement()
-	} else if p.nextTokenIs(token.LPAREN) {
+	if p.nextTokenIs(token.LPAREN) {
 		return p.parseFunctionDeclarationStatement()
+	} else if p.nextTokenIs(token.LBRACKET) {
+		return p.parseArrayDeclarationStatement()
 	} else {
-		msg := fmt.Sprintf("expected '(' or '=' after: %s %s", p.prevToken.Literal, p.curToken.Literal)
-		p.appendError(msg)
-		return nil
+		return p.parseVariableDeclarationStatement()
 	}
-}
-
-func (p *Parser) parseVariableDeclarationStatement() ast.Statement {
-	stmt := &ast.VariableDeclarationStatement{}
-	stmt.Identifier = ast.Identifier{
-		Name:        p.curToken.Literal,
-		Type:        p.prevToken.Type,
-		TypeLiteral: p.prevToken.Literal,
-	}
-
-	p.advanceToken() // '='
-	p.advanceToken() // expression
-
-	stmt.Expression = p.parseExpression(LOWEST)
-	if stmt.Expression == nil {
-		return nil
-	}
-
-	if !p.nextTokenIs(token.SEMICOLON) {
-		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
-		p.appendError(msg)
-		return nil
-	}
-	p.advanceToken() // ';'
-
-	return stmt
 }
 
 func (p *Parser) parseFunctionDeclarationStatement() ast.Statement {
@@ -129,6 +100,99 @@ func (p *Parser) parseFunctionDeclarationStatement() ast.Statement {
 	}
 
 	stmt.Function = funcExp
+
+	return stmt
+}
+
+func (p *Parser) parseArrayDeclarationStatement() ast.Statement {
+	stmt := &ast.ArrayDeclarationStatement{}
+	stmt.Identifier = ast.Identifier{
+		Name:        p.curToken.Literal,
+		Type:        p.prevToken.Type,
+		TypeLiteral: p.prevToken.Literal,
+	}
+
+	p.advanceToken() // '['
+
+	if !p.nextTokenIs(token.INT_VALUE) {
+		msg := fmt.Sprintf("expected size in array declaration, got %s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // array size: INT_VALUE
+
+	intVal, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+	if err != nil {
+		msg := fmt.Sprintf("expected integer for array size, got %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	stmt.Size = int(intVal)
+
+	if !p.nextTokenIs(token.RBRACKET) {
+		msg := fmt.Sprintf("expected ']', got %s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ']'
+
+	if p.nextTokenIs(token.SEMICOLON) { // did not initialize array
+		p.advanceToken() // ';'
+		return stmt
+	}
+
+	if !p.nextTokenIs(token.ASSIGN) || p.nextTokenIs(token.SEMICOLON) { // array initialization?
+		msg := fmt.Sprintf("expected '=' or ';', got %s", p.nextToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	p.advanceToken() // '='
+	p.advanceToken() // expression
+
+	stmt.Expression = p.parseExpression(LOWEST)
+	if stmt.Expression == nil {
+		return nil
+	}
+
+	if !p.nextTokenIs(token.SEMICOLON) {
+		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ';'
+
+	return stmt
+}
+
+func (p *Parser) parseVariableDeclarationStatement() ast.Statement {
+	stmt := &ast.VariableDeclarationStatement{}
+	stmt.Identifier = ast.Identifier{
+		Name:        p.curToken.Literal,
+		Type:        p.prevToken.Type,
+		TypeLiteral: p.prevToken.Literal,
+	}
+
+	if p.nextTokenIs(token.SEMICOLON) { // did not initialize variable
+		p.advanceToken() // ';'
+		return stmt
+	}
+
+	p.advanceToken() // '='
+	p.advanceToken() // expression
+
+	stmt.Expression = p.parseExpression(LOWEST)
+	if stmt.Expression == nil {
+		return nil
+	}
+
+	if !p.nextTokenIs(token.SEMICOLON) {
+		msg := fmt.Sprintf("missing ';' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ';'
 
 	return stmt
 }

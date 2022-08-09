@@ -108,9 +108,9 @@ func TestEval(t *testing.T) {
 		{"a = x + y;", "ERROR: \"a\" not declared", object.ERROR_OBJ},
 
 		{"int a = x + x;", "10", object.INT_OBJ},
-		{"int a = x + y;", "ERROR: cannot assign FLOAT to INTEGER", object.ERROR_OBJ},
+		{"int a = x + y;", "ERROR: cannot assign FLOAT to INT", object.ERROR_OBJ},
 
-		{"float a = x + x;", "ERROR: cannot assign INTEGER to FLOAT", object.ERROR_OBJ},
+		{"float a = x + x;", "ERROR: cannot assign INT to FLOAT", object.ERROR_OBJ},
 		{"float a = x + y;", "60.550000", object.FLOAT_OBJ},
 		{"a = x + y;", "60.550000", object.FLOAT_OBJ},
 
@@ -123,7 +123,7 @@ func TestEval(t *testing.T) {
 
 		{"int add(int a, int b) { return a + b; }", "int add(int a, int b) { return (a + b); }", object.FN_OBJ},
 		{"add(1, 2);", "3", object.INT_OBJ},
-		{"add(x, y);", "ERROR: wrong type for argument 2, got=FLOAT; expected:INTEGER", object.ERROR_OBJ},
+		{"add(x, y);", "ERROR: wrong type for argument 2, got=FLOAT; expected:INT", object.ERROR_OBJ},
 
 		{"if (x > y) { return x; } else { return y; }", "55.550000", object.FLOAT_OBJ},
 		{"if (x < y) { return x; } else { return y; }", "5", object.INT_OBJ},

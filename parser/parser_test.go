@@ -257,28 +257,6 @@ func TestParseStatement(t *testing.T) {
 				Right:    &ast.IntegerLiteral{Value: 1},
 			}},
 		},
-		{"{ int x = 1; float y = 3.2; c = 'c'; string s = \"a string\"; return x / y; }", &ast.BlockStatement{
-			Statements: []ast.Statement{
-				&ast.VariableDeclarationStatement{
-					Identifier: ast.Identifier{Name: "x", Type: token.INT_TYPE, TypeLiteral: "int"},
-					Expression: &ast.IntegerLiteral{Value: 1}},
-				&ast.VariableDeclarationStatement{
-					Identifier: ast.Identifier{Name: "y", Type: token.FLOAT_TYPE, TypeLiteral: "float"},
-					Expression: &ast.FloatLiteral{Value: 3.2}},
-				&ast.AssignmentStatement{
-					Identifier: ast.Identifier{Name: "c"},
-					Expression: &ast.CharLiteral{Value: 'c'}},
-				&ast.VariableDeclarationStatement{
-					Identifier: ast.Identifier{Name: "s", Type: token.STRING_TYPE, TypeLiteral: "string"},
-					Expression: &ast.StringLiteral{Value: "a string"}},
-				&ast.ReturnStatement{
-					ReturnValue: &ast.InfixExpression{
-						Left:     &ast.Identifier{Name: "x"},
-						Operator: "/",
-						Right:    &ast.Identifier{Name: "y"},
-					}},
-			}},
-		},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.Line)

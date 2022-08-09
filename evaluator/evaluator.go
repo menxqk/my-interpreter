@@ -32,10 +32,12 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return e.evalExpressionStatement(node)
 	case *ast.BlockStatement:
 		return e.evalBlockStatement(node)
-	case *ast.VariableDeclarationStatement:
-		return e.evalVariableDeclarationStatement(node)
 	case *ast.FunctionDeclarationStatement:
 		return e.evalFunctionDeclarationStatement(node)
+	case *ast.ArrayDeclarationStatement:
+		return e.evalArrayDeclarationStatement(node)
+	case *ast.VariableDeclarationStatement:
+		return e.evalVariableDeclarationStatement(node)
 	case *ast.AssignmentStatement:
 		return e.evalAssignmentStatement(node)
 	case *ast.ReturnStatement:
@@ -73,13 +75,15 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return FALSE
 	case *ast.NullLiteral:
 		return NULL
+	case *ast.ArrayLiteral:
+		return e.evalArrayLiteral(node)
+	default:
+		return NULL
 	}
-
-	return &object.Error{Message: "could not parse program"}
 }
 
 func (e *Evaluator) evalProgram(program *ast.Program) object.Object {
-	var result object.Object
+	var result object.Object = &object.Null{}
 
 	for _, stmt := range program.Statements {
 		result = e.Eval(stmt)

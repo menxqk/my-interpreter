@@ -75,6 +75,7 @@ func New(l *lexer.Lexer, debug ...bool) *Parser {
 	p.registerPrefixParseFn(token.TRUE, p.parseBoolean)
 	p.registerPrefixParseFn(token.FALSE, p.parseBoolean)
 	p.registerPrefixParseFn(token.NULL, p.parseNull)
+	p.registerPrefixParseFn(token.LBRACE, p.parseArrayLiteral)
 
 	p.infixParseFns = make(map[string]InfixParseFn)
 	p.registerInfixParseFn(token.PLUS, p.parseInfixExpression)

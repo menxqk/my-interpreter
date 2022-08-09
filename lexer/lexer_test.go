@@ -51,7 +51,7 @@ func TestNextToken(t *testing.T) {
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
-		{token.EOF, ""},
+		{token.EOF, "EOF"},
 	}
 
 	l := New(input)
@@ -79,7 +79,7 @@ func TestIllegalFloat(t *testing.T) {
 		Literal string
 	}{
 		{token.ILLEGAL, "10.0.00"},
-		{token.EOF, ""},
+		{token.EOF, "EOF"},
 	}
 
 	l := New(input)
@@ -107,7 +107,7 @@ func TestIllegalChar(t *testing.T) {
 	}{
 		{token.ILLEGAL, "'cc'"},
 		{token.ILLEGAL, "'c"},
-		{token.EOF, ""},
+		{token.EOF, "EOF"},
 	}
 
 	l := New(input)
@@ -132,7 +132,7 @@ func TestIllegalString(t *testing.T) {
 		Literal string
 	}{
 		{token.ILLEGAL, "\"A str"},
-		{token.EOF, ""},
+		{token.EOF, "EOF"},
 	}
 
 	l := New(input)

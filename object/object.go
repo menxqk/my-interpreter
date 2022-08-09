@@ -12,10 +12,12 @@ const (
 	NULL_OBJ  = "NULL"
 	ERROR_OBJ = "ERROR"
 
-	INT_OBJ   = "INTEGER"
+	INT_OBJ   = "INT"
 	FLOAT_OBJ = "FLOAT"
 	CHAR_OBJ  = "CHAR"
 	STR_OBJ   = "STRING"
+
+	ARRAY_OBJ = "ARRAY"
 
 	BOOL_OBJ    = "BOOLEAN"
 	RET_VAL_OBJ = "RETURN_VALUE"
@@ -73,6 +75,26 @@ type String struct {
 func (s *String) Type() string    { return STR_OBJ }
 func (s *String) Inspect() string { return s.Value }
 
+// ARRAY Object
+type Array struct {
+	ArrType  string
+	Size     int
+	Elements []Object
+}
+
+func (a *Array) Type() string { return ARRAY_OBJ }
+func (a *Array) Inspect() string {
+	var out bytes.Buffer
+	out.WriteString(fmt.Sprintf("%s[%d] {", strings.ToLower(a.ArrType), a.Size))
+	elems := []string{}
+	for _, e := range a.Elements {
+		elems = append(elems, e.Inspect())
+	}
+	out.WriteString(strings.Join(elems, ", "))
+	out.WriteString("}")
+	return out.String()
+}
+
 // BOOLEAN Object
 type Boolean struct {
 	Value bool
@@ -109,4 +131,22 @@ func (f *Function) Inspect() string {
 	out.WriteString(") ")
 	out.WriteString(f.Body.String())
 	return out.String()
+}
+
+// Zero Value Object
+func GetZeroValueObject(varType string) Object {
+	switch varType {
+	case INT_OBJ:
+		return &Integer{}
+	case FLOAT_OBJ:
+		return &Float{}
+	case CHAR_OBJ:
+		return &Char{}
+	case STR_OBJ:
+		return &String{}
+	case ARRAY_OBJ:
+		return &Array{}
+	default:
+		return &Null{}
+	}
 }

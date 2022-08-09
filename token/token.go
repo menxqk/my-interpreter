@@ -7,7 +7,7 @@ const (
 	IDENT = "IDENT"
 
 	// Types
-	INT_TYPE    = "INTEGER"
+	INT_TYPE    = "INT"
 	FLOAT_TYPE  = "FLOAT"
 	CHAR_TYPE   = "CHAR"
 	STRING_TYPE = "STRING"
