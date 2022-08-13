@@ -61,15 +61,22 @@ func (e *Evaluator) evalArrayDeclarationStatement(stmt *ast.ArrayDeclarationStat
 	arrObj.ArrType = arrType
 	arrObj.Size = size
 
-	for _, elem := range arrObj.Elements {
-		if elem.Type() != arrType {
-			return newError("cannot assign %s to %s array", elem.Type(), arrType)
-		}
-	}
-
 	if len(arrObj.Elements) > arrObj.Size {
 		return newError("%d elements exceed array capacity %d", len(arrObj.Elements), arrObj.Size)
 	}
+
+	allElements := make([]object.Object, size, size)
+	for i := range allElements {
+		allElements[i] = &object.Null{}
+	}
+	for i, elem := range arrObj.Elements {
+		if elem.Type() != arrType {
+			return newError("cannot assign %s to %s array", elem.Type(), arrType)
+		}
+		allElements[i] = elem
+	}
+
+	arrObj.Elements = allElements
 
 	result = e.env.Set(name, obj)
 

@@ -198,3 +198,25 @@ func (ce *CallExpression) DebugString() string {
 	out.WriteString(fmt.Sprintf(" [%T]", ce))
 	return out.String()
 }
+
+// ARRAY ELEMENT EXPRESSION
+type ArrayElementExpression struct {
+	Identifier Identifier
+	Index      int
+	Expression Expression
+}
+
+func (aee *ArrayElementExpression) expressionNode() {}
+func (aee *ArrayElementExpression) Literal() string { return "element" }
+func (aee *ArrayElementExpression) String() string {
+	if aee.Expression != nil {
+		return fmt.Sprintf("%s[%d] = %s", aee.Identifier.String(), aee.Index, aee.Expression.String())
+	}
+	return fmt.Sprintf("%s[%d]", aee.Identifier.String(), aee.Index)
+}
+func (aee *ArrayElementExpression) DebugString() string {
+	if aee.Expression != nil {
+		return fmt.Sprintf("%s[%d] = %s [%T]", aee.Identifier.String(), aee.Index, aee.Expression.DebugString(), aee)
+	}
+	return fmt.Sprintf("%s[%d] [%T]", aee.Identifier.String(), aee.Index, aee)
+}

@@ -23,7 +23,6 @@ func (p *Parser) parseStatement() ast.Statement {
 	default:
 		return p.parseExpressionStatement()
 	}
-
 }
 
 func (p *Parser) parseDeclarationStatement() ast.Statement {

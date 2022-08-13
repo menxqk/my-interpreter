@@ -172,6 +172,38 @@ func (e *Evaluator) evalCallExpression(exp *ast.CallExpression) object.Object {
 	return result
 }
 
+func (e *Evaluator) evalArrayElementExpression(arrElem *ast.ArrayElementExpression) object.Object {
+	name := arrElem.Identifier.Name
+
+	obj, ok := e.env.Get(name)
+	if !ok {
+		return newError("array %q not found", arrElem.Identifier.Name)
+	}
+
+	if obj.Type() != object.ARRAY_OBJ {
+		return newError("%q not an array", arrElem.Identifier.Name)
+	}
+
+	arrObj, ok := obj.(*object.Array)
+	if !ok {
+		return newError("could not convert %q to array", arrElem.Identifier.Name)
+	}
+
+	if arrElem.Index > arrObj.Size-1 {
+		return newError("index (%d) out of bounds (%d)", arrElem.Index, arrObj.Size-1)
+	}
+
+	if arrElem.Expression != nil {
+		newObj := e.Eval(arrElem.Expression)
+		if newObj.Type() != arrObj.ArrType {
+			return newError("cannot assign %s to %s array", newObj.Type(), arrObj.ArrType)
+		}
+		arrObj.Elements[arrElem.Index] = newObj
+	}
+
+	return arrObj.Elements[arrElem.Index]
+}
+
 func (e *Evaluator) evalFunctionExpression(fnExp *ast.FunctionExpression) object.Object {
 	return &object.Function{
 		Identifier: fnExp.Identifier,

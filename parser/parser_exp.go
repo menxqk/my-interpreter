@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/menxqk/my-interpreter/ast"
 	"github.com/menxqk/my-interpreter/token"
@@ -148,12 +149,11 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{}
-
 	exp.Identifier = ast.Identifier{
 		Name: left.Literal(),
 	}
 
-	p.advanceToken() // cal arguments
+	p.advanceToken() // call arguments
 	args := []ast.Expression{}
 	for !p.curTokenIs(token.RPAREN) && !p.curTokenIs(token.EOF) {
 		exp := p.parseExpression(LOWEST)
@@ -169,6 +169,48 @@ func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
 		p.advanceToken()
 	}
 	exp.Arguments = args
+
+	return exp
+}
+
+func (p *Parser) parseArrayElementExpression(left ast.Expression) ast.Expression {
+	exp := &ast.ArrayElementExpression{}
+	exp.Identifier = ast.Identifier{
+		Name: left.Literal(),
+	}
+
+	p.advanceToken() // array element index
+	if !p.curTokenIs(token.INT_VALUE) {
+		msg := fmt.Sprintf("expected integer value for array element index, got %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+	if err != nil {
+		msg := fmt.Sprintf("could not parse integer for array element index: %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	exp.Index = int(val)
+
+	if !p.nextTokenIs(token.RBRACKET) {
+		msg := fmt.Sprintf("expected ']' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ']'
+
+	if p.nextTokenIs(token.ASSIGN) {
+		p.advanceToken() // '='
+		p.advanceToken() // expression
+
+		elemExp := p.parseExpression(LOWEST)
+		if exp == nil {
+			return nil
+		}
+		exp.Expression = elemExp
+	}
 
 	return exp
 }
