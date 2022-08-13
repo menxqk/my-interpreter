@@ -18,7 +18,33 @@ func (i *Integer) ToType(objType ObjectType) Object {
 		return &Null{}
 	}
 }
-func (i *Integer) Add(o Object) Object { return &Integer{Value: i.Value + o.(*Integer).Value} }
-func (i *Integer) Sub(o Object) Object { return &Integer{Value: i.Value - o.(*Integer).Value} }
-func (i *Integer) Mul(o Object) Object { return &Integer{Value: i.Value * o.(*Integer).Value} }
-func (i *Integer) Div(o Object) Object { return &Integer{Value: i.Value / o.(*Integer).Value} }
+func (i *Integer) Add(o Object) Object {
+	return &Integer{Value: i.Value + o.(*Integer).Value}
+}
+func (i *Integer) Sub(o Object) Object {
+	return &Integer{Value: i.Value - o.(*Integer).Value}
+}
+func (i *Integer) Mul(o Object) Object {
+	return &Integer{Value: i.Value * o.(*Integer).Value}
+}
+func (i *Integer) Div(o Object) Object {
+	return &Integer{Value: i.Value / o.(*Integer).Value}
+}
+func (i *Integer) Equ(o Object) Object {
+	return &Boolean{Value: i.Value == o.(*Integer).Value}
+}
+func (i *Integer) NotEqu(o Object) Object {
+	return &Boolean{Value: i.Value != o.(*Integer).Value}
+}
+func (i *Integer) Gt(o Object) Object {
+	return &Boolean{Value: i.Value > o.(*Integer).Value}
+}
+func (i *Integer) Gte(o Object) Object {
+	return &Boolean{Value: i.Value >= o.(*Integer).Value}
+}
+func (i *Integer) Lt(o Object) Object {
+	return &Boolean{Value: i.Value < o.(*Integer).Value}
+}
+func (i *Integer) Lte(o Object) Object {
+	return &Boolean{Value: i.Value <= o.(*Integer).Value}
+}

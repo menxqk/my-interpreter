@@ -29,3 +29,13 @@ func (a *Array) Add(o Object) Object              { return &Null{} }
 func (a *Array) Sub(o Object) Object              { return &Null{} }
 func (a *Array) Mul(o Object) Object              { return &Null{} }
 func (a *Array) Div(o Object) Object              { return &Null{} }
+func (a *Array) Equ(o Object) Object {
+	return &Boolean{Value: a == o.(*Array)}
+}
+func (a *Array) NotEqu(o Object) Object {
+	return &Boolean{Value: a != o.(*Array)}
+}
+func (a *Array) Gt(o Object) Object  { return &Null{} }
+func (a *Array) Gte(o Object) Object { return &Null{} }
+func (a *Array) Lt(o Object) Object  { return &Null{} }
+func (a *Array) Lte(o Object) Object { return &Null{} }

@@ -24,3 +24,21 @@ func (c *Char) Add(o Object) Object {
 func (c *Char) Sub(o Object) Object { return &Null{} }
 func (c *Char) Mul(o Object) Object { return &Null{} }
 func (c *Char) Div(o Object) Object { return &Null{} }
+func (c *Char) Equ(o Object) Object {
+	return &Boolean{Value: c.Value == o.(*Char).Value}
+}
+func (c *Char) NotEqu(o Object) Object {
+	return &Boolean{Value: c.Value != o.(*Char).Value}
+}
+func (c *Char) Gt(o Object) Object {
+	return &Boolean{Value: c.Value > o.(*Char).Value}
+}
+func (c *Char) Gte(o Object) Object {
+	return &Boolean{Value: c.Value >= o.(*Char).Value}
+}
+func (c *Char) Lt(o Object) Object {
+	return &Boolean{Value: c.Value < o.(*Char).Value}
+}
+func (c *Char) Lte(o Object) Object {
+	return &Boolean{Value: c.Value <= o.(*Char).Value}
+}

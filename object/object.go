@@ -9,7 +9,7 @@ const (
 	CharType
 	StringType
 	ArrayType
-	BoleanType
+	BooleanType
 )
 
 const (
@@ -20,10 +20,9 @@ const (
 	FLOAT_OBJ = "FLOAT"
 	CHAR_OBJ  = "CHAR"
 	STR_OBJ   = "STRING"
-
 	ARRAY_OBJ = "ARRAY"
+	BOOL_OBJ  = "BOOLEAN"
 
-	BOOL_OBJ    = "BOOLEAN"
 	RET_VAL_OBJ = "RETURN_VALUE"
 	FN_OBJ      = "FUNCTION"
 )
@@ -37,12 +36,12 @@ type Object interface {
 	Mul(Object) Object
 	Div(Object) Object
 
-	// Equ(Object) Object
-	// NotEqu(Object) Object
-	// Gt(Object) Object
-	// Gte(Object) Object
-	// Lt(Object) Object
-	// Lte(Object) Object
+	Equ(Object) Object
+	NotEqu(Object) Object
+	Gt(Object) Object
+	Gte(Object) Object
+	Lt(Object) Object
+	Lte(Object) Object
 }
 
 // Zero Value Object

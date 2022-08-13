@@ -33,3 +33,13 @@ func (f *Function) Add(o Object) Object              { return &Null{} }
 func (f *Function) Sub(o Object) Object              { return &Null{} }
 func (f *Function) Mul(o Object) Object              { return &Null{} }
 func (f *Function) Div(o Object) Object              { return &Null{} }
+func (f *Function) Equ(o Object) Object {
+	return &Boolean{Value: f == o.(*Function)}
+}
+func (f *Function) NotEqu(o Object) Object {
+	return &Boolean{Value: f != o.(*Function)}
+}
+func (f *Function) Gt(o Object) Object  { return &Null{} }
+func (f *Function) Gte(o Object) Object { return &Null{} }
+func (f *Function) Lt(o Object) Object  { return &Null{} }
+func (f *Function) Lte(o Object) Object { return &Null{} }

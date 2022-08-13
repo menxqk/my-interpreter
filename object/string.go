@@ -25,3 +25,21 @@ func (s *String) Add(o Object) Object {
 func (s *String) Sub(o Object) Object { return &Null{} }
 func (s *String) Mul(o Object) Object { return &Null{} }
 func (s *String) Div(o Object) Object { return &Null{} }
+func (s *String) Equ(o Object) Object {
+	return &Boolean{Value: s.Value == o.(*String).Value}
+}
+func (s *String) NotEqu(o Object) Object {
+	return &Boolean{Value: s.Value != o.(*String).Value}
+}
+func (s *String) Gt(o Object) Object {
+	return &Boolean{Value: s.Value > o.(*String).Value}
+}
+func (s *String) Gte(o Object) Object {
+	return &Boolean{Value: s.Value >= o.(*String).Value}
+}
+func (s *String) Lt(o Object) Object {
+	return &Boolean{Value: s.Value < o.(*String).Value}
+}
+func (s *String) Lte(o Object) Object {
+	return &Boolean{Value: s.Value <= o.(*String).Value}
+}
