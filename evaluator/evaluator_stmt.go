@@ -44,8 +44,6 @@ func (e *Evaluator) evalArrayDeclarationStatement(stmt *ast.ArrayDeclarationStat
 	var result object.Object
 
 	name := stmt.Identifier.Name
-	arrType := stmt.Identifier.Type
-	size := stmt.Size
 
 	obj := e.Eval(stmt.Expression)
 	// if expression is null, set zero value Object for the type
@@ -58,20 +56,24 @@ func (e *Evaluator) evalArrayDeclarationStatement(stmt *ast.ArrayDeclarationStat
 	}
 
 	arrObj := obj.(*object.Array)
-	arrObj.ArrType = arrType
-	arrObj.Size = size
+	arrObj.ArrType = stmt.Identifier.Type
+	arrObj.Size = stmt.Size
 
-	if len(arrObj.Elements) > arrObj.Size {
+	if len(arrObj.Elements) > arrObj.Size && arrObj.Size > 0 {
 		return newError("%d elements exceed array capacity %d", len(arrObj.Elements), arrObj.Size)
 	}
 
-	allElements := make([]object.Object, size, size)
+	if arrObj.Size == 0 {
+		arrObj.Size = len(arrObj.Elements)
+	}
+
+	allElements := make([]object.Object, arrObj.Size, arrObj.Size)
 	for i := range allElements {
 		allElements[i] = &object.Null{}
 	}
 	for i, elem := range arrObj.Elements {
-		if elem.Type() != arrType {
-			return newError("cannot assign %s to %s array", elem.Type(), arrType)
+		if elem.Type() != arrObj.ArrType {
+			return newError("cannot assign %s to %s array", elem.Type(), arrObj.ArrType)
 		}
 		allElements[i] = elem
 	}
@@ -130,14 +132,7 @@ func (e *Evaluator) evalAssignmentStatement(stmt *ast.AssignmentStatement) objec
 			}
 		}
 
-		// check size of assignment array
-		if len(expObjArray.Elements) > arrObj.Size {
-			return newError("%d elements exceed array capacity %d", len(expObjArray.Elements), arrObj.Size)
-		}
-
-		// if checks are ok, set correct type and size for assignment array
 		expObjArray.ArrType = arrObj.ArrType
-		expObjArray.Size = arrObj.Size
 	}
 
 	result = e.env.Set(stmt.Identifier.Name, expObj)

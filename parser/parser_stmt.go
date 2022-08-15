@@ -113,21 +113,18 @@ func (p *Parser) parseArrayDeclarationStatement() ast.Statement {
 
 	p.advanceToken() // '['
 
-	if !p.nextTokenIs(token.INT_VALUE) {
-		msg := fmt.Sprintf("expected size in array declaration, got %s", p.nextToken.Literal)
-		p.appendError(msg)
-		return nil
-	}
-	p.advanceToken() // array size: INT_VALUE
+	if p.nextTokenIs(token.INT_VALUE) {
+		p.advanceToken() // array size: INT_VALUE
 
-	intVal, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
-	if err != nil {
-		msg := fmt.Sprintf("expected integer for array size, got %s", p.curToken.Literal)
-		p.appendError(msg)
-		return nil
-	}
+		intVal, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+		if err != nil {
+			msg := fmt.Sprintf("expected integer for array size, got %s", p.curToken.Literal)
+			p.appendError(msg)
+			return nil
+		}
 
-	stmt.Size = int(intVal)
+		stmt.Size = int(intVal)
+	}
 
 	if !p.nextTokenIs(token.RBRACKET) {
 		msg := fmt.Sprintf("expected ']', got %s", p.nextToken.Literal)

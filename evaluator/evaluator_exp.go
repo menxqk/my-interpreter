@@ -66,38 +66,51 @@ func (e *Evaluator) evalInfixExpression(exp *ast.InfixExpression) object.Object 
 	if isError(left) {
 		return left
 	}
-
 	right := e.Eval(exp.Right)
 	if isError(right) {
 		return right
 	}
+	typeForObjects := getTypeForObjects(left, right)
+	if typeForObjects == object.NullType {
+		return newError("illegal operation %s + %s", left.Type(), right.Type())
+	}
+
+	leftVal := left.ToType(typeForObjects)
+	rightVal := right.ToType(typeForObjects)
+
+	var result object.Object
 
 	operator := exp.Operator
-
 	switch operator {
 	case "+":
-		return e.evalPlusOperator(left, right)
+		result = leftVal.Add(rightVal)
 	case "-":
-		return e.evalMinusOperator(left, right)
+		result = leftVal.Sub(rightVal)
 	case "*":
-		return e.evalAsteriskOperator(left, right)
+		result = leftVal.Mul(rightVal)
 	case "/":
-		return e.evalSlashOperator(left, right)
+		result = leftVal.Div(rightVal)
 	case "==":
-		return e.evalEqualOperator(left, right)
+		result = leftVal.Equ(rightVal)
 	case "!=":
-		return e.evalNotEqualOperator(left, right)
+		result = leftVal.NotEqu(rightVal)
 	case ">":
-		return e.evalGreaterOperator(left, right)
+		result = leftVal.Gt(rightVal)
 	case ">=":
-		return e.evalGreaterEqualOperator(left, right)
+		result = leftVal.Gte(rightVal)
 	case "<":
-		return e.evalLesserOperator(left, right)
+		result = leftVal.Lt(rightVal)
 	case "<=":
-		return e.evalLesserEqualOperator(left, right)
+		result = leftVal.Lte(rightVal)
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
+
+	if result == nil {
+		return newError("illegal operation %s %s %s", left.Type(), operator, right.Type())
+	}
+
+	return result
 }
 
 func (e *Evaluator) evalIfExpression(exp *ast.IfExpression) object.Object {
@@ -211,4 +224,32 @@ func (e *Evaluator) evalFunctionExpression(fnExp *ast.FunctionExpression) object
 		Body:       fnExp.Body,
 		Env:        e.env,
 	}
+}
+
+func getTypeForObjects(left, right object.Object) object.ObjectType {
+
+	if left.Type() == object.INT_OBJ && right.Type() == object.INT_OBJ {
+		return object.IntType
+	} else if left.Type() == object.FLOAT_OBJ && right.Type() == object.FLOAT_OBJ {
+		return object.FloatType
+	} else if left.Type() == object.INT_OBJ && right.Type() == object.FLOAT_OBJ || left.Type() == object.FLOAT_OBJ && right.Type() == object.INT_OBJ {
+		return object.FloatType
+	}
+
+	if left.Type() == object.CHAR_OBJ || left.Type() == object.STR_OBJ && right.Type() == object.CHAR_OBJ || right.Type() == object.STR_OBJ {
+		return object.StringType
+	}
+
+	if left.Type() == object.ARRAY_OBJ && right.Type() == object.ARRAY_OBJ {
+		if left.(*object.Array).ArrType == right.(*object.Array).ArrType {
+			return object.ArrayType
+		}
+		return object.NullType
+	}
+
+	if left.Type() == object.BOOL_OBJ && right.Type() == object.BOOL_OBJ {
+		return object.BooleanType
+	}
+
+	return object.NullType
 }
