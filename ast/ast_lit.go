@@ -82,24 +82,55 @@ func (al *ArrayLiteral) expressionNode() {}
 func (al *ArrayLiteral) Literal() string { return al.String() }
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
-	out.WriteString("{")
+	out.WriteString("[")
 	elems := []string{}
 	for _, e := range al.Elements {
 		elems = append(elems, e.String())
 	}
 	out.WriteString(strings.Join(elems, ", "))
-	out.WriteString("}")
+	out.WriteString("]")
 	return out.String()
 }
 func (al *ArrayLiteral) DebugString() string {
 	var out bytes.Buffer
-	out.WriteString("{")
+	out.WriteString("[")
 	elems := []string{}
 	for _, e := range al.Elements {
 		elems = append(elems, e.DebugString())
 	}
 	out.WriteString(strings.Join(elems, ", "))
-	out.WriteString("}")
+	out.WriteString("]")
 	out.WriteString(fmt.Sprintf(" [%T]", al))
+	return out.String()
+}
+
+// DICT LITERAL
+type DictLiteral struct {
+	Elements map[string]Expression
+}
+
+func (dl *DictLiteral) expressionNode() {}
+func (dl *DictLiteral) Literal() string { return dl.String() }
+func (dl *DictLiteral) String() string {
+	var out bytes.Buffer
+	out.WriteString("{")
+	elems := []string{}
+	for k, v := range dl.Elements {
+		elems = append(elems, fmt.Sprintf("%s: %s", k, v.String()))
+	}
+	out.WriteString(strings.Join(elems, ", "))
+	out.WriteString("}")
+	return out.String()
+}
+func (dl *DictLiteral) DebugString() string {
+	var out bytes.Buffer
+	out.WriteString("{")
+	elems := []string{}
+	for k, v := range dl.Elements {
+		elems = append(elems, fmt.Sprintf("%s: %s", k, v.DebugString()))
+	}
+	out.WriteString(strings.Join(elems, ", "))
+	out.WriteString("}")
+	out.WriteString(fmt.Sprintf(" [%T]", dl))
 	return out.String()
 }

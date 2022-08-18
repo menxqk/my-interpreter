@@ -10,6 +10,7 @@ const (
 	StringType
 	ArrayType
 	BooleanType
+	DictType
 )
 
 const (
@@ -22,6 +23,7 @@ const (
 	STR_OBJ   = "STRING"
 	ARRAY_OBJ = "ARRAY"
 	BOOL_OBJ  = "BOOLEAN"
+	DICT_OBJ  = "DICT"
 
 	RET_VAL_OBJ = "RETURN_VALUE"
 	FN_OBJ      = "FUNCTION"
@@ -56,7 +58,11 @@ func GetZeroValueObject(objType string) Object {
 	case STR_OBJ:
 		return &String{}
 	case ARRAY_OBJ:
-		return &Array{}
+		return &Array{Elements: []Object{}}
+	case BOOL_OBJ:
+		return &Boolean{}
+	case DICT_OBJ:
+		return &Dict{Elements: map[string]Object{}}
 	default:
 		return &Null{}
 	}

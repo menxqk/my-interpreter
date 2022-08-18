@@ -173,6 +173,17 @@ func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseCollectionElementExpression(left ast.Expression) ast.Expression {
+	switch p.nextToken.Type {
+	case token.INT_VALUE:
+		return p.parseArrayElementExpression(left)
+	case token.STRING_VALUE:
+		return p.parseDictElementExpression(left)
+	default:
+		return nil
+	}
+}
+
 func (p *Parser) parseArrayElementExpression(left ast.Expression) ast.Expression {
 	exp := &ast.ArrayElementExpression{}
 	exp.Identifier = ast.Identifier{
@@ -193,6 +204,42 @@ func (p *Parser) parseArrayElementExpression(left ast.Expression) ast.Expression
 		return nil
 	}
 	exp.Index = int(val)
+
+	if !p.nextTokenIs(token.RBRACKET) {
+		msg := fmt.Sprintf("expected ']' after %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+	p.advanceToken() // ']'
+
+	if p.nextTokenIs(token.ASSIGN) {
+		p.advanceToken() // '='
+		p.advanceToken() // expression
+
+		elemExp := p.parseExpression(LOWEST)
+		if exp == nil {
+			return nil
+		}
+		exp.Expression = elemExp
+	}
+
+	return exp
+}
+
+func (p *Parser) parseDictElementExpression(left ast.Expression) ast.Expression {
+	exp := &ast.DictElementExpression{}
+	exp.Identifier = ast.Identifier{
+		Name: left.Literal(),
+	}
+
+	p.advanceToken() // dict key
+	if !p.curTokenIs(token.STRING_VALUE) {
+		msg := fmt.Sprintf("expected string for dict key, got %s", p.curToken.Literal)
+		p.appendError(msg)
+		return nil
+	}
+
+	exp.Key = p.curToken.Literal
 
 	if !p.nextTokenIs(token.RBRACKET) {
 		msg := fmt.Sprintf("expected ']' after %s", p.curToken.Literal)

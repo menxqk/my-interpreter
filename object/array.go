@@ -15,13 +15,13 @@ type Array struct {
 func (a *Array) Type() string { return ARRAY_OBJ }
 func (a *Array) Inspect() string {
 	var out bytes.Buffer
-	out.WriteString(fmt.Sprintf("%s[%d] {", strings.ToLower(a.ArrType), a.Size))
+	out.WriteString(fmt.Sprintf("%s[%d] [", strings.ToLower(a.ArrType), a.Size))
 	elems := []string{}
 	for _, e := range a.Elements {
 		elems = append(elems, e.Inspect())
 	}
 	out.WriteString(strings.Join(elems, ", "))
-	out.WriteString("}")
+	out.WriteString("]")
 	return out.String()
 }
 func (a *Array) ToType(objType ObjectType) Object {
@@ -79,18 +79,14 @@ func (a *Array) NotEqu(o Object) Object {
 	return &Boolean{Value: a != o.(*Array)}
 }
 func (a *Array) Gt(o Object) Object {
-	oArr := o.(*Array)
-	return &Boolean{Value: a.Size > oArr.Size}
+	return &Boolean{Value: a.Size > o.(*Array).Size}
 }
 func (a *Array) Gte(o Object) Object {
-	oArr := o.(*Array)
-	return &Boolean{Value: a.Size >= oArr.Size}
+	return &Boolean{Value: a.Size >= o.(*Array).Size}
 }
 func (a *Array) Lt(o Object) Object {
-	oArr := o.(*Array)
-	return &Boolean{Value: a.Size < oArr.Size}
+	return &Boolean{Value: a.Size < o.(*Array).Size}
 }
 func (a *Array) Lte(o Object) Object {
-	oArr := o.(*Array)
-	return &Boolean{Value: a.Size <= oArr.Size}
+	return &Boolean{Value: a.Size <= o.(*Array).Size}
 }

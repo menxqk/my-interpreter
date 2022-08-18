@@ -60,6 +60,8 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return e.evalCallExpression(node)
 	case *ast.ArrayElementExpression:
 		return e.evalArrayElementExpression(node)
+	case *ast.DictElementExpression:
+		return e.evalDictElementExpression(node)
 
 	// Literals
 	case *ast.IntegerLiteral:
@@ -79,6 +81,8 @@ func (e *Evaluator) Eval(node ast.Node) object.Object {
 		return NULL
 	case *ast.ArrayLiteral:
 		return e.evalArrayLiteral(node)
+	case *ast.DictLiteral:
+		return e.evalDictLiteral(node)
 	default:
 		return NULL
 	}

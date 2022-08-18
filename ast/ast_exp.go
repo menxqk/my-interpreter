@@ -207,7 +207,7 @@ type ArrayElementExpression struct {
 }
 
 func (aee *ArrayElementExpression) expressionNode() {}
-func (aee *ArrayElementExpression) Literal() string { return "element" }
+func (aee *ArrayElementExpression) Literal() string { return "array element" }
 func (aee *ArrayElementExpression) String() string {
 	if aee.Expression != nil {
 		return fmt.Sprintf("%s[%d] = %s", aee.Identifier.String(), aee.Index, aee.Expression.String())
@@ -219,4 +219,26 @@ func (aee *ArrayElementExpression) DebugString() string {
 		return fmt.Sprintf("%s[%d] = %s [%T]", aee.Identifier.String(), aee.Index, aee.Expression.DebugString(), aee)
 	}
 	return fmt.Sprintf("%s[%d] [%T]", aee.Identifier.String(), aee.Index, aee)
+}
+
+// DICT ELEMENT EXPRESSION
+type DictElementExpression struct {
+	Identifier Identifier
+	Key        string
+	Expression Expression
+}
+
+func (dee *DictElementExpression) expressionNode() {}
+func (dee *DictElementExpression) Literal() string { return "dict element" }
+func (dee *DictElementExpression) String() string {
+	if dee.Expression != nil {
+		return fmt.Sprintf("%s[%s] = %s", dee.Identifier.String(), dee.Key, dee.Expression.String())
+	}
+	return fmt.Sprintf("%s", dee.Identifier.String())
+}
+func (dee *DictElementExpression) DebugString() string {
+	if dee.Expression != nil {
+		return fmt.Sprintf("%s[%s] = %s [%T]", dee.Identifier.String(), dee.Key, dee.Expression.String(), dee)
+	}
+	return fmt.Sprintf("%s [%T]", dee.Identifier.String(), dee)
 }

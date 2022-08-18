@@ -81,12 +81,53 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	p.advanceToken() // expressions
 
 	elems := []ast.Expression{}
-	for !p.curTokenIs(token.EOF) && !p.curTokenIs(token.RBRACE) {
+	for !p.curTokenIs(token.EOF) && !p.curTokenIs(token.RBRACKET) {
 		exp := p.parseExpression(LOWEST)
 		if exp == nil {
 			return nil
 		}
 		elems = append(elems, exp)
+		if p.nextTokenIs(token.COMMA) {
+			p.advanceToken()
+		}
+		p.advanceToken()
+	}
+
+	lit.Elements = elems
+
+	return lit
+}
+
+func (p *Parser) parseDictLiteral() ast.Expression {
+	lit := &ast.DictLiteral{}
+
+	p.advanceToken() // expressions
+
+	elems := map[string]ast.Expression{}
+	for !p.curTokenIs(token.EOF) && !p.curTokenIs(token.RBRACE) {
+		if !p.curTokenIs(token.STRING_VALUE) {
+			msg := fmt.Sprintf("expected %s, got %s", token.STRING_VALUE, p.curToken.Type)
+			p.appendError(msg)
+			return nil
+		}
+
+		key := p.curToken.Literal
+
+		p.advanceToken() // ':'
+		if !p.curTokenIs(token.COLON) {
+			msg := fmt.Sprintf("expected %s, got %s", token.COLON, p.curToken.Literal)
+			p.appendError(msg)
+			return nil
+		}
+
+		p.advanceToken() // expression
+		exp := p.parseExpression(LOWEST)
+		if exp == nil {
+			return nil
+		}
+
+		elems[key] = exp
+
 		if p.nextTokenIs(token.COMMA) {
 			p.advanceToken()
 		}

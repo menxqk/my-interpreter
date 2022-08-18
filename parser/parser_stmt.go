@@ -10,7 +10,7 @@ import (
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
-	case token.INT_TYPE, token.FLOAT_TYPE, token.CHAR_TYPE, token.STRING_TYPE:
+	case token.INT_TYPE, token.FLOAT_TYPE, token.CHAR_TYPE, token.STRING_TYPE, token.DICT_TYPE:
 		return p.parseDeclarationStatement()
 	case token.IDENT:
 		if p.nextTokenIs(token.ASSIGN) {

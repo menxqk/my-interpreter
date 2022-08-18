@@ -23,3 +23,15 @@ func (e *Evaluator) evalArrayLiteral(lit *ast.ArrayLiteral) object.Object {
 
 	return array
 }
+
+func (e *Evaluator) evalDictLiteral(lit *ast.DictLiteral) object.Object {
+	dict := &object.Dict{}
+	dict.Elements = map[string]object.Object{}
+
+	for k, v := range lit.Elements {
+		obj := e.Eval(v)
+		dict.Elements[k] = obj
+	}
+
+	return dict
+}

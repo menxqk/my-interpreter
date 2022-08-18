@@ -72,7 +72,7 @@ func (e *Evaluator) evalInfixExpression(exp *ast.InfixExpression) object.Object 
 	}
 	typeForObjects := getTypeForObjects(left, right)
 	if typeForObjects == object.NullType {
-		return newError("illegal operation %s + %s", left.Type(), right.Type())
+		return newError("illegal operation %s %s %s", left.Type(), exp.Operator, right.Type())
 	}
 
 	leftVal := left.ToType(typeForObjects)
@@ -190,16 +190,16 @@ func (e *Evaluator) evalArrayElementExpression(arrElem *ast.ArrayElementExpressi
 
 	obj, ok := e.env.Get(name)
 	if !ok {
-		return newError("array %q not found", arrElem.Identifier.Name)
+		return newError("array %q not found", name)
 	}
 
 	if obj.Type() != object.ARRAY_OBJ {
-		return newError("%q not an array", arrElem.Identifier.Name)
+		return newError("%q not an array", name)
 	}
 
 	arrObj, ok := obj.(*object.Array)
 	if !ok {
-		return newError("could not convert %q to array", arrElem.Identifier.Name)
+		return newError("could not convert %q to array", name)
 	}
 
 	if arrElem.Index > arrObj.Size-1 {
@@ -215,6 +215,36 @@ func (e *Evaluator) evalArrayElementExpression(arrElem *ast.ArrayElementExpressi
 	}
 
 	return arrObj.Elements[arrElem.Index]
+}
+
+func (e *Evaluator) evalDictElementExpression(dictElem *ast.DictElementExpression) object.Object {
+	name := dictElem.Identifier.Name
+
+	obj, ok := e.env.Get(name)
+	if !ok {
+		return newError("dict %q not found", name)
+	}
+
+	if obj.Type() != object.DICT_OBJ {
+		return newError("%q not a dict", name)
+	}
+
+	dictObj, ok := obj.(*object.Dict)
+	if !ok {
+		return newError("could not convert %q to dict", name)
+	}
+
+	if dictElem.Expression != nil {
+		newObj := e.Eval(dictElem.Expression)
+		dictObj.Elements[dictElem.Key] = newObj
+	}
+
+	_, ok = dictObj.Elements[dictElem.Key]
+	if !ok {
+		return &object.Null{}
+	}
+
+	return dictObj.Elements[dictElem.Key]
 }
 
 func (e *Evaluator) evalFunctionExpression(fnExp *ast.FunctionExpression) object.Object {
@@ -249,6 +279,10 @@ func getTypeForObjects(left, right object.Object) object.ObjectType {
 
 	if left.Type() == object.BOOL_OBJ && right.Type() == object.BOOL_OBJ {
 		return object.BooleanType
+	}
+
+	if left.Type() == object.DICT_OBJ && right.Type() == object.DICT_OBJ {
+		return object.DictType
 	}
 
 	return object.NullType

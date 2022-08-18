@@ -11,6 +11,7 @@ const (
 	FLOAT_TYPE  = "FLOAT"
 	CHAR_TYPE   = "CHAR"
 	STRING_TYPE = "STRING"
+	DICT_TYPE   = "DICT"
 
 	// Values
 	INT_VALUE    = "INT_VALUE"
@@ -35,6 +36,7 @@ const (
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 	LPAREN    = "("
 	RPAREN    = ")"
 	LBRACKET  = "["
@@ -67,6 +69,7 @@ var keywords = map[string]string{
 	"float":  FLOAT_TYPE,
 	"char":   CHAR_TYPE,
 	"string": STRING_TYPE,
+	"dict":   DICT_TYPE,
 }
 
 var dataTypes = map[string]string{
@@ -74,6 +77,7 @@ var dataTypes = map[string]string{
 	"float":  FLOAT_TYPE,
 	"char":   CHAR_TYPE,
 	"string": STRING_TYPE,
+	"dict":   DICT_TYPE,
 }
 
 func LookupIdentType(ident string) string {
