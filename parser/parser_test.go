@@ -257,6 +257,61 @@ func TestParseStatement(t *testing.T) {
 				Right:    &ast.IntegerLiteral{Value: 1},
 			}},
 		},
+		{"int arr[2] = [1,2];", &ast.ArrayDeclarationStatement{
+			Identifier: ast.Identifier{
+				Name:        "arr",
+				Type:        token.INT_TYPE,
+				TypeLiteral: "int",
+			},
+			Size: 2,
+			Expression: &ast.ArrayLiteral{
+				Elements: []ast.Expression{
+					&ast.IntegerLiteral{Value: 1},
+					&ast.IntegerLiteral{Value: 2},
+				},
+			}},
+		},
+		{"arr[1];", &ast.ExpressionStatement{
+			Expression: &ast.ArrayElementExpression{
+				Identifier: ast.Identifier{Name: "arr"},
+				Index:      1,
+				Expression: nil,
+			}},
+		},
+		{"arr[0] = 10;", &ast.ExpressionStatement{
+			Expression: &ast.ArrayElementExpression{
+				Identifier: ast.Identifier{Name: "arr"},
+				Index:      0,
+				Expression: &ast.IntegerLiteral{Value: 10},
+			}},
+		},
+		{"dict d = {\"one\": 1, \"two\": 2};", &ast.VariableDeclarationStatement{
+			Identifier: ast.Identifier{
+				Name:        "d",
+				Type:        token.DICT_TYPE,
+				TypeLiteral: "dict",
+			},
+			Expression: &ast.DictLiteral{
+				Elements: map[string]ast.Expression{
+					"one": &ast.IntegerLiteral{Value: 1},
+					"two": &ast.IntegerLiteral{Value: 2},
+				},
+			}},
+		},
+		{"d[\"one\"];", &ast.ExpressionStatement{
+			Expression: &ast.DictElementExpression{
+				Identifier: ast.Identifier{Name: "d"},
+				Key:        "one",
+				Expression: nil,
+			}},
+		},
+		{"d[\"one\"] = 20;", &ast.ExpressionStatement{
+			Expression: &ast.DictElementExpression{
+				Identifier: ast.Identifier{Name: "d"},
+				Key:        "one",
+				Expression: &ast.IntegerLiteral{Value: 20},
+			}},
+		},
 	}
 	for _, tt := range tests {
 		l := lexer.New(tt.Line)
@@ -509,5 +564,39 @@ func checkExpressions(t *testing.T, exp ast.Expression, ttExp ast.Expression) {
 				checkExpressions(t, arg, ttArg)
 			}
 		}
+	case *ast.ArrayLiteral:
+		ttExp := ttExp.(*ast.ArrayLiteral)
+		if len(exp.Elements) != len(ttExp.Elements) {
+			t.Errorf("expected %d elements, got %d", len(ttExp.Elements), len(exp.Elements))
+		} else {
+			for i, elem := range exp.Elements {
+				ttElem := ttExp.Elements[i]
+				checkExpressions(t, elem, ttElem)
+			}
+		}
+	case *ast.ArrayElementExpression:
+		ttExp := ttExp.(*ast.ArrayElementExpression)
+		checkExpressions(t, &exp.Identifier, &ttExp.Identifier)
+		if exp.Index != ttExp.Index {
+			t.Errorf("expected index %d, got %d", ttExp.Index, exp.Index)
+		}
+		checkExpressions(t, exp.Expression, ttExp.Expression)
+	case *ast.DictLiteral:
+		ttExp := ttExp.(*ast.DictLiteral)
+		if len(exp.Elements) != len(ttExp.Elements) {
+			t.Errorf("expected %d elements, got %d", len(ttExp.Elements), len(exp.Elements))
+		} else {
+			for k, v := range exp.Elements {
+				vExp := ttExp.Elements[k]
+				checkExpressions(t, v, vExp)
+			}
+		}
+	case *ast.DictElementExpression:
+		ttExp := ttExp.(*ast.DictElementExpression)
+		checkExpressions(t, &exp.Identifier, &ttExp.Identifier)
+		if exp.Key != ttExp.Key {
+			t.Errorf("expected key %q, got %q", ttExp.Key, exp.Key)
+		}
+		checkExpressions(t, exp.Expression, ttExp.Expression)
 	}
 }

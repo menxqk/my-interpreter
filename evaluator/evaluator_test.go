@@ -127,6 +127,18 @@ func TestEval(t *testing.T) {
 
 		{"if (x > y) { return x; } else { return y; }", "55.550000", object.FLOAT_OBJ},
 		{"if (x < y) { return x; } else { return y; }", "5", object.INT_OBJ},
+
+		{"int arrA[5] = [1, 2, 3, 4, 5];", "int[5] [1, 2, 3, 4, 5]", object.ARRAY_OBJ},
+		{"int arrB[5] = [6, 7, 8, 9, 10];", "int[5] [6, 7, 8, 9, 10]", object.ARRAY_OBJ},
+		{"int arrC[] = arrA + arrB;", "int[10] [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", object.ARRAY_OBJ},
+		{"arrC[4];", "5", object.INT_OBJ},
+		{"arrC[4] = 0;", "0", object.INT_OBJ},
+		{"arrC;", "int[10] [1, 2, 3, 4, 0, 6, 7, 8, 9, 10]", object.ARRAY_OBJ},
+
+		{"dict d = {\"one\": 1, \"two\": 2, \"three\": 3}; d[\"one\"];", "1", object.INT_OBJ},
+		{"dict e = {\"four\": 4, \"five\": 5, \"six\": 6}; e[\"six\"];", "6", object.INT_OBJ},
+		{"dict f = d + e; f[\"three\"];", "3", object.INT_OBJ},
+		{"f[\"five\"];", "5", object.INT_OBJ},
 	}
 
 	e := New()

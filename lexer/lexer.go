@@ -262,5 +262,5 @@ func isDigit(ch rune) bool {
 }
 
 func isLetter(ch rune) bool {
-	return ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_'
+	return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_'
 }

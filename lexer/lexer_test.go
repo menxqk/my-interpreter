@@ -7,10 +7,10 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `| abc int float char string 
+	input := `| abc int float char string dict
 	10 35.50 'c' "A string"
 	+ - / * ! = == != < <= > >= 
-	, ; ( ) [ ] { }
+	, ; : ( ) [ ] { }
 	`
 
 	tests := []struct {
@@ -23,6 +23,7 @@ func TestNextToken(t *testing.T) {
 		{token.FLOAT_TYPE, "float"},
 		{token.CHAR_TYPE, "char"},
 		{token.STRING_TYPE, "string"},
+		{token.DICT_TYPE, "dict"},
 
 		{token.INT_VALUE, "10"},
 		{token.FLOAT_VALUE, "35.50"},
@@ -44,6 +45,7 @@ func TestNextToken(t *testing.T) {
 
 		{token.COMMA, ","},
 		{token.SEMICOLON, ";"},
+		{token.COLON, ":"},
 		{token.LPAREN, "("},
 		{token.RPAREN, ")"},
 		{token.LBRACKET, "["},
@@ -60,11 +62,11 @@ func TestNextToken(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.Type {
-			t.Errorf("expected type %s, got=%s", tt.Type, tok.Type)
+			t.Fatalf("expected type %s, got=%s", tt.Type, tok.Type)
 		}
 
 		if tok.Literal != tt.Literal {
-			t.Errorf("expected literal %q, got=%q", tt.Literal, tok.Literal)
+			t.Fatalf("expected literal %q, got=%q", tt.Literal, tok.Literal)
 		}
 	}
 
@@ -88,11 +90,11 @@ func TestIllegalFloat(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.Type {
-			t.Errorf("expected type %s, got=%s", tt.Type, tok.Type)
+			t.Fatalf("expected type %s, got=%s", tt.Type, tok.Type)
 		}
 
 		if tok.Literal != tt.Literal {
-			t.Errorf("expected literal %q, got=%q", tt.Literal, tok.Literal)
+			t.Fatalf("expected literal %q, got=%q", tt.Literal, tok.Literal)
 		}
 	}
 }
@@ -116,11 +118,11 @@ func TestIllegalChar(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.Type {
-			t.Errorf("expected type %s, got=%s", tt.Type, tok.Type)
+			t.Fatalf("expected type %s, got=%s", tt.Type, tok.Type)
 		}
 
 		if tok.Literal != tt.Literal {
-			t.Errorf("expected literal %q, got=%q", tt.Literal, tok.Literal)
+			t.Fatalf("expected literal %q, got=%q", tt.Literal, tok.Literal)
 		}
 	}
 }
@@ -141,11 +143,11 @@ func TestIllegalString(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.Type {
-			t.Errorf("expected type %s, got=%s", tt.Type, tok.Type)
+			t.Fatalf("expected type %s, got=%s", tt.Type, tok.Type)
 		}
 
 		if tok.Literal != tt.Literal {
-			t.Errorf("expected literal %q, got=%q", tt.Literal, tok.Literal)
+			t.Fatalf("expected literal %q, got=%q", tt.Literal, tok.Literal)
 		}
 	}
 }
