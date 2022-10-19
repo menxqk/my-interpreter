@@ -25,6 +25,7 @@ a string
 int add(int a, int b) { return a + b; }
 >>> add(3, 5);
 8
+>>> int a[] = [1, 2, 3];
 >>> a;
 int[3] [1, 2, 3]
 >>> int b[] = a + [4,5,6];
